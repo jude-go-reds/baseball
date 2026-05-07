@@ -36,14 +36,16 @@ export const CARD_HEIGHT = 1120;
 
 export type CardSide = "front" | "back";
 
-export function buildHonorsStrip(h: Honors): string[] {
-  const items: string[] = [];
-  if (h.hofYear) items.push(`HoF ${h.hofYear}`);
-  if (h.worldSeries) items.push(`${h.worldSeries}× WS`);
-  if (h.mvp) items.push(`${h.mvp}× MVP`);
-  if (h.cyYoung) items.push(`${h.cyYoung}× CY`);
-  if (h.allStar) items.push(`${h.allStar}× AS`);
-  if (h.goldGlove) items.push(`${h.goldGlove}× GG`);
-  if (h.silverSlugger) items.push(`${h.silverSlugger}× SS`);
-  return items;
+export type AwardTile = { value: string; label: string };
+
+export function buildAwardTiles(h: Honors): AwardTile[] {
+  const tiles: AwardTile[] = [];
+  if (h.hofYear) tiles.push({ value: String(h.hofYear), label: "Hall of Fame" });
+  if (h.worldSeries) tiles.push({ value: String(h.worldSeries), label: "World Series" });
+  if (h.mvp) tiles.push({ value: String(h.mvp), label: "MVP" });
+  if (h.cyYoung) tiles.push({ value: String(h.cyYoung), label: "Cy Young" });
+  if (h.allStar) tiles.push({ value: String(h.allStar), label: "All-Star" });
+  if (h.goldGlove) tiles.push({ value: String(h.goldGlove), label: "Gold Glove" });
+  if (h.silverSlugger) tiles.push({ value: String(h.silverSlugger), label: "Silver Slugger" });
+  return tiles;
 }

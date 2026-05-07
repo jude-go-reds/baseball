@@ -1,4 +1,4 @@
-import { type Player, buildHonorsStrip } from "../../types";
+import { type Player, buildAwardTiles } from "../../types";
 
 const GOLD = "#c9a227";
 const DARK_GREEN = "#0b3d2e";
@@ -18,7 +18,7 @@ export function ModernBack({ player }: { player: Player }) {
     ["R", player.hitting.r],
     ["SB", player.hitting.sb],
   ];
-  const honors = buildHonorsStrip(player.honors);
+  const awards = buildAwardTiles(player.honors);
 
   return (
     <div
@@ -82,35 +82,77 @@ export function ModernBack({ player }: { player: Player }) {
           </div>
         </div>
 
-        {/* Honors strip */}
-        {honors.length > 0 && (
+        {/* Career Awards section */}
+        {awards.length > 0 && (
           <div
             style={{
               display: "flex",
-              flexWrap: "wrap",
-              padding: "24px 32px",
+              flexDirection: "column",
+              padding: "24px 28px 8px",
               background: GOLD,
               color: INK,
-              gap: "12px 36px",
               borderBottom: `4px solid ${DARK_GREEN}`,
-              alignItems: "center",
-              justifyContent: "center",
             }}
           >
-            {honors.map((label) => (
-              <div
-                key={label}
-                style={{
-                  display: "flex",
-                  fontSize: 36,
-                  fontWeight: 900,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                }}
-              >
-                {label}
-              </div>
-            ))}
+            <div
+              style={{
+                display: "flex",
+                fontSize: 22,
+                fontWeight: 800,
+                color: DEEP,
+                letterSpacing: 3,
+                textTransform: "uppercase",
+              }}
+            >
+              Career Awards
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                marginTop: 12,
+              }}
+            >
+              {awards.map(({ value, label }) => (
+                <div
+                  key={label}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: awards.length <= 4 ? "25%" : "33.3333%",
+                    padding: "8px 8px 16px",
+                    boxSizing: "border-box",
+                    alignItems: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      fontSize: 64,
+                      fontWeight: 900,
+                      color: DEEP,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {value}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      marginTop: 6,
+                      fontSize: 14,
+                      fontWeight: 800,
+                      color: DEEP,
+                      letterSpacing: 2,
+                      textTransform: "uppercase",
+                      textAlign: "center",
+                    }}
+                  >
+                    {label}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -120,7 +162,7 @@ export function ModernBack({ player }: { player: Player }) {
             display: "flex",
             flex: 1,
             flexDirection: "column",
-            padding: "28px",
+            padding: "24px 28px",
           }}
         >
           <div
@@ -139,7 +181,7 @@ export function ModernBack({ player }: { player: Player }) {
             style={{
               display: "flex",
               flexWrap: "wrap",
-              marginTop: 16,
+              marginTop: 12,
             }}
           >
             {stats.map(([label, value]) => (
@@ -149,7 +191,7 @@ export function ModernBack({ player }: { player: Player }) {
                   display: "flex",
                   flexDirection: "column",
                   width: "33.3333%",
-                  padding: "14px 8px",
+                  padding: "10px 8px",
                   boxSizing: "border-box",
                 }}
               >
@@ -167,10 +209,10 @@ export function ModernBack({ player }: { player: Player }) {
                 <div
                   style={{
                     display: "flex",
-                    fontSize: 44,
+                    fontSize: 40,
                     fontWeight: 900,
                     color: INK,
-                    marginTop: 4,
+                    marginTop: 2,
                   }}
                 >
                   {String(value)}
