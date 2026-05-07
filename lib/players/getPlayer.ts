@@ -7,6 +7,7 @@ import {
   getYearByYearPitching,
 } from "@/lib/mlb/client";
 import { resolvePhoto } from "@/lib/photos";
+import { getHistorical } from "@/lib/historical";
 import type { MlbAward, MlbStatsResponse } from "@/lib/mlb/types";
 import type {
   HitterCareer,
@@ -51,7 +52,11 @@ function firstSplit<T>(res: MlbStatsResponse<T>): T | null {
   return res.stats?.[0]?.splits?.[0]?.stat ?? null;
 }
 
-function buildHitting(stat: ReturnType<typeof firstSplit>): HitterCareer | null {
+function buildHitting(
+  stat: ReturnType<typeof firstSplit>,
+  warBat: number | null,
+  opsPlus: number | null,
+): HitterCareer | null {
   if (!stat) return null;
   const s = stat as Record<string, unknown>;
   return {
@@ -64,10 +69,16 @@ function buildHitting(stat: ReturnType<typeof firstSplit>): HitterCareer | null 
     h: Number(s.hits ?? 0),
     r: Number(s.runs ?? 0),
     sb: Number(s.stolenBases ?? 0),
+    warBat,
+    opsPlus,
   };
 }
 
-function buildPitching(stat: ReturnType<typeof firstSplit>): PitcherCareer | null {
+function buildPitching(
+  stat: ReturnType<typeof firstSplit>,
+  warPit: number | null,
+  eraPlus: number | null,
+): PitcherCareer | null {
   if (!stat) return null;
   const s = stat as Record<string, unknown>;
   const ip = s.inningsPitched;
@@ -80,6 +91,8 @@ function buildPitching(stat: ReturnType<typeof firstSplit>): PitcherCareer | nul
     k: Number(s.strikeOuts ?? 0),
     ip: String(ip),
     sv: Number(s.saves ?? 0),
+    warPit,
+    eraPlus,
   };
 }
 
@@ -181,8 +194,17 @@ export async function getPlayer(id: string): Promise<Player | null> {
   const p = person.people?.[0];
   if (!p) return null;
 
-  const hittingCareer = buildHitting(firstSplit(hitting));
-  const pitchingCareer = buildPitching(firstSplit(pitching));
+  const historical = getHistorical(String(p.id));
+  const hittingCareer = buildHitting(
+    firstSplit(hitting),
+    historical?.warBat ?? null,
+    historical?.opsPlus ?? null,
+  );
+  const pitchingCareer = buildPitching(
+    firstSplit(pitching),
+    historical?.warPit ?? null,
+    historical?.eraPlus ?? null,
+  );
 
   if (!hittingCareer && !pitchingCareer) return null;
 

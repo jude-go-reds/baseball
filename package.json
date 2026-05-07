@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "build:index": "tsx scripts/build-search-index.ts"
+    "build:index": "tsx scripts/build-search-index.ts",
+    "build:historical": "tsx scripts/import-historical.ts"
   },
   "dependencies": {
     "fuse.js": "^7.3.0",

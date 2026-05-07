@@ -268,11 +268,11 @@ function Footer() {
         display: "flex",
         background: DEEP,
         color: "rgba(245, 245, 240, 0.75)",
-        padding: "12px 24px",
-        fontSize: 13,
+        padding: "10px 20px",
+        fontSize: 11,
       }}
     >
-      baseball-cards.app  {String.fromCharCode(0x2022)}  data: MLB Stats API  {String.fromCharCode(0x2022)}  photos: MLB
+      data: MLB Stats API + Baseball-Reference (WAR / OPS+ / ERA+)  {String.fromCharCode(0x2022)}  photos: MLB / Wikimedia
     </div>
   );
 }

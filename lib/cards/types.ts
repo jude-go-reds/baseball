@@ -8,6 +8,8 @@ export type HitterCareer = {
   h: number;
   r: number;
   sb: number;
+  warBat: number | null;
+  opsPlus: number | null;
 };
 
 export type PitcherCareer = {
@@ -18,6 +20,8 @@ export type PitcherCareer = {
   k: number;
   ip: string;
   sv: number;
+  warPit: number | null;
+  eraPlus: number | null;
 };
 
 export type Honors = {
@@ -64,7 +68,7 @@ export function buildAwardTiles(h: Honors): AwardTile[] {
 export type StatTile = { label: string; value: string };
 
 export function buildHittingTiles(h: HitterCareer): StatTile[] {
-  return [
+  const tiles: StatTile[] = [
     { label: "AVG", value: h.avg },
     { label: "OBP", value: h.obp },
     { label: "SLG", value: h.slg },
@@ -75,10 +79,13 @@ export function buildHittingTiles(h: HitterCareer): StatTile[] {
     { label: "R", value: String(h.r) },
     { label: "SB", value: String(h.sb) },
   ];
+  if (h.opsPlus !== null) tiles.push({ label: "OPS+", value: String(h.opsPlus) });
+  if (h.warBat !== null) tiles.push({ label: "WAR", value: h.warBat.toFixed(1) });
+  return tiles;
 }
 
 export function buildPitchingTiles(p: PitcherCareer): StatTile[] {
-  return [
+  const tiles: StatTile[] = [
     { label: "W", value: String(p.w) },
     { label: "L", value: String(p.l) },
     { label: "ERA", value: p.era },
@@ -87,4 +94,7 @@ export function buildPitchingTiles(p: PitcherCareer): StatTile[] {
     { label: "IP", value: p.ip },
     { label: "SV", value: String(p.sv) },
   ];
+  if (p.eraPlus !== null) tiles.push({ label: "ERA+", value: String(p.eraPlus) });
+  if (p.warPit !== null) tiles.push({ label: "WAR", value: p.warPit.toFixed(1) });
+  return tiles;
 }
