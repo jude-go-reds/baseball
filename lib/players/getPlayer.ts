@@ -6,6 +6,7 @@ import {
   getYearByYearHitting,
   getYearByYearPitching,
 } from "@/lib/mlb/client";
+import { resolvePhoto } from "@/lib/photos";
 import type { MlbAward, MlbStatsResponse } from "@/lib/mlb/types";
 import type {
   HitterCareer,
@@ -160,10 +161,6 @@ function yearsLabel(
   return "";
 }
 
-function photoUrl(id: number): string {
-  return `https://midfield.mlbstatic.com/v1/people/${id}/spots/240`;
-}
-
 export async function getPlayer(id: string): Promise<Player | null> {
   if (!/^\d+$/.test(id)) return null;
 
@@ -190,6 +187,7 @@ export async function getPlayer(id: string): Promise<Player | null> {
   if (!hittingCareer && !pitchingCareer) return null;
 
   const teams = uniqueTeamsFromSplits(ybyHitting, ybyPitching).slice(0, 4);
+  const photo = await resolvePhoto(String(p.id), p.fullName);
 
   return {
     id: String(p.id),
@@ -197,7 +195,7 @@ export async function getPlayer(id: string): Promise<Player | null> {
     team: teams.join(" / "),
     position: p.primaryPosition?.abbreviation ?? "",
     years: yearsLabel(p.mlbDebutDate, p.lastPlayedDate, Boolean(p.active)),
-    photoUrl: photoUrl(p.id),
+    photoUrl: photo,
     honors: summarizeHonors(awards.awards),
     hitting: hittingCareer,
     pitching: pitchingCareer,
