@@ -109,9 +109,7 @@ export function PlayerSearch() {
       )}
 
       {query.trim() && fuse && results.length === 0 && (
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          No matches in active 2026 rosters. (Historical players coming in M4.)
-        </p>
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">No matches.</p>
       )}
     </div>
   );
