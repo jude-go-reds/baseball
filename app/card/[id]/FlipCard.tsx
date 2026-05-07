@@ -5,10 +5,12 @@ import { useState } from "react";
 type Props = {
   playerId: string;
   playerName: string;
+  style: string;
 };
 
-export function FlipCard({ playerId, playerName }: Props) {
+export function FlipCard({ playerId, playerName, style }: Props) {
   const [flipped, setFlipped] = useState(false);
+  const q = `?style=${style}`;
 
   return (
     <div
@@ -35,9 +37,12 @@ export function FlipCard({ playerId, playerName }: Props) {
           padding: 0,
         }}
       >
-        <Face src={`/api/card/${playerId}?side=front`} alt={`${playerName} front`} />
         <Face
-          src={`/api/card/${playerId}?side=back`}
+          src={`/api/card/${playerId}${q}&side=front`}
+          alt={`${playerName} front`}
+        />
+        <Face
+          src={`/api/card/${playerId}${q}&side=back`}
           alt={`${playerName} back`}
           back
         />
