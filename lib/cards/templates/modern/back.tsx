@@ -88,11 +88,13 @@ export function ModernBack({ player }: { player: Player }) {
             style={{
               display: "flex",
               flexWrap: "wrap",
-              padding: "16px 24px",
+              padding: "24px 32px",
               background: GOLD,
               color: INK,
-              gap: "8px 24px",
+              gap: "12px 36px",
               borderBottom: `4px solid ${DARK_GREEN}`,
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {honors.map((label) => (
@@ -100,9 +102,9 @@ export function ModernBack({ player }: { player: Player }) {
                 key={label}
                 style={{
                   display: "flex",
-                  fontSize: 20,
-                  fontWeight: 800,
-                  letterSpacing: 1,
+                  fontSize: 36,
+                  fontWeight: 900,
+                  letterSpacing: 2,
                   textTransform: "uppercase",
                 }}
               >
