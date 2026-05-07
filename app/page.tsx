@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PlayerSearch } from "./PlayerSearch";
 
 export default function Home() {
@@ -10,6 +11,13 @@ export default function Home() {
       </p>
 
       <PlayerSearch />
+
+      <Link
+        href="/browse"
+        className="text-sm text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
+      >
+        Browse galleries &rarr;
+      </Link>
     </main>
   );
 }

@@ -18,7 +18,11 @@ export type SearchEntry = {
   team: string;
   position: string;
   years: string;
+  /** Hall of Fame induction year, present iff the player is in the HoF. */
+  hofYear?: number;
 };
+
+type ApiAward = { season?: string; player?: { id?: number } };
 
 const FIRST_MLB_SEASON = 1876;
 const CURRENT_SEASON = new Date().getUTCFullYear();
@@ -31,6 +35,19 @@ async function fetchJson<T>(path: string): Promise<T> {
   });
   if (!res.ok) throw new Error(`MLB API ${res.status} for ${path}`);
   return (await res.json()) as T;
+}
+
+async function buildHofMap(): Promise<Map<number, number>> {
+  const json = await fetchJson<{ awards: ApiAward[] }>(
+    `/awards/MLBHOF/recipients`,
+  );
+  const map = new Map<number, number>();
+  for (const a of json.awards ?? []) {
+    const id = a.player?.id;
+    const year = a.season ? Number(a.season) : NaN;
+    if (id && Number.isFinite(year)) map.set(id, year);
+  }
+  return map;
 }
 
 async function buildTeamMap(): Promise<Map<number, string>> {
@@ -95,6 +112,10 @@ async function main() {
   console.log(
     `Fetching MLB rosters for ${seasons.length} seasons (${FIRST_MLB_SEASON} - ${CURRENT_SEASON})...`,
   );
+  console.log("Fetching Hall of Fame recipients...");
+  const hof = await buildHofMap();
+  console.log(`  ${hof.size} HoF inductees`);
+
   const teams = await buildTeamMap();
 
   let done = 0;
@@ -128,13 +149,18 @@ async function main() {
     }
   }
 
-  const entries: SearchEntry[] = Array.from(byId.values()).map((p) => ({
-    id: String(p.id),
-    name: p.fullName,
-    team: teamLabel(p, teams),
-    position: p.primaryPosition?.abbreviation ?? "",
-    years: yearsLabel(p),
-  }));
+  const entries: SearchEntry[] = Array.from(byId.values()).map((p) => {
+    const entry: SearchEntry = {
+      id: String(p.id),
+      name: p.fullName,
+      team: teamLabel(p, teams),
+      position: p.primaryPosition?.abbreviation ?? "",
+      years: yearsLabel(p),
+    };
+    const hofYear = hof.get(p.id);
+    if (hofYear !== undefined) entry.hofYear = hofYear;
+    return entry;
+  });
 
   entries.sort((a, b) => a.name.localeCompare(b.name));
 
