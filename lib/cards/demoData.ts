@@ -1,4 +1,4 @@
-import type { Player } from "./templates/modern";
+import type { Player } from "./types";
 
 export const RUTH: Player = {
   id: "ruth",

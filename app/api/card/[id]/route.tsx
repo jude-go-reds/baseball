@@ -1,9 +1,15 @@
 import { ImageResponse } from "next/og";
-import { CARD_HEIGHT, CARD_WIDTH, ModernCard } from "@/lib/cards/templates/modern";
+import { CARD_HEIGHT, CARD_WIDTH, type CardSide } from "@/lib/cards/types";
+import { ModernFront } from "@/lib/cards/templates/modern/front";
+import { ModernBack } from "@/lib/cards/templates/modern/back";
 import { getDemoPlayer } from "@/lib/cards/demoData";
 
+function parseSide(value: string | null): CardSide {
+  return value === "back" ? "back" : "front";
+}
+
 export async function GET(
-  _request: Request,
+  request: Request,
   ctx: RouteContext<"/api/card/[id]">,
 ) {
   const { id } = await ctx.params;
@@ -13,7 +19,11 @@ export async function GET(
     return new Response(`No player found for id "${id}"`, { status: 404 });
   }
 
-  return new ImageResponse(<ModernCard player={player} />, {
+  const side = parseSide(new URL(request.url).searchParams.get("side"));
+  const element =
+    side === "back" ? <ModernBack player={player} /> : <ModernFront player={player} />;
+
+  return new ImageResponse(element, {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
     headers: {
