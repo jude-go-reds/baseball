@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getByEra } from "@/lib/players/searchIndex";
-import { PlayerList } from "../../PlayerList";
+import { FilteredPlayerList } from "../../FilteredPlayerList";
 
 export default async function EraPage({
   params,
@@ -36,7 +36,7 @@ export default async function EraPage({
         </p>
       </header>
 
-      <PlayerList entries={players} />
+      <FilteredPlayerList entries={players} />
     </main>
   );
 }

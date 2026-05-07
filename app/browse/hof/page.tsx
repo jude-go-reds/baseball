@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getHallOfFamers } from "@/lib/players/searchIndex";
-import { PlayerList } from "../PlayerList";
+import { FilteredPlayerList } from "../FilteredPlayerList";
 
 export default function HofPage() {
   const players = getHallOfFamers();
@@ -25,7 +25,7 @@ export default function HofPage() {
         </p>
       </header>
 
-      <PlayerList entries={players} />
+      <FilteredPlayerList entries={players} hideHofToggle />
     </main>
   );
 }

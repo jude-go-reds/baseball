@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getByTeam } from "@/lib/players/searchIndex";
-import { PlayerList } from "../../PlayerList";
+import { FilteredPlayerList } from "../../FilteredPlayerList";
 
 export default async function TeamPage({
   params,
@@ -33,7 +33,7 @@ export default async function TeamPage({
         </p>
       </header>
 
-      <PlayerList entries={players} />
+      <FilteredPlayerList entries={players} />
     </main>
   );
 }
