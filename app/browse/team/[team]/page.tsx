@@ -33,7 +33,7 @@ export default async function TeamPage({
         </p>
       </header>
 
-      <FilteredPlayerList entries={players} />
+      <FilteredPlayerList entries={players} hideTeamFilter />
     </main>
   );
 }

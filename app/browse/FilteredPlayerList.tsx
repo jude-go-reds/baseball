@@ -10,11 +10,18 @@ type Props = {
   entries: SearchEntry[];
   /** When true, omit the HoF-only checkbox (e.g. on the HoF page itself). */
   hideHofToggle?: boolean;
+  /** When true, omit the team dropdown (e.g. on the team page itself). */
+  hideTeamFilter?: boolean;
 };
 
-export function FilteredPlayerList({ entries, hideHofToggle = false }: Props) {
+export function FilteredPlayerList({
+  entries,
+  hideHofToggle = false,
+  hideTeamFilter = false,
+}: Props) {
   const [name, setName] = useState("");
   const [position, setPosition] = useState("");
+  const [team, setTeam] = useState("");
   const [hofOnly, setHofOnly] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
@@ -24,15 +31,22 @@ export function FilteredPlayerList({ entries, hideHofToggle = false }: Props) {
     return Array.from(set).sort();
   }, [entries]);
 
+  const teams = useMemo(() => {
+    const set = new Set<string>();
+    for (const e of entries) if (e.team) set.add(e.team);
+    return Array.from(set).sort();
+  }, [entries]);
+
   const filtered = useMemo(() => {
     const q = name.trim().toLowerCase();
     return entries.filter((e) => {
       if (q && !e.name.toLowerCase().includes(q)) return false;
       if (position && e.position !== position) return false;
+      if (team && e.team !== team) return false;
       if (hofOnly && e.hofYear === undefined) return false;
       return true;
     });
-  }, [entries, name, position, hofOnly]);
+  }, [entries, name, position, team, hofOnly]);
 
   const visible = showAll ? filtered : filtered.slice(0, PAGE_SIZE);
   const hidden = filtered.length - visible.length;
@@ -65,6 +79,23 @@ export function FilteredPlayerList({ entries, hideHofToggle = false }: Props) {
             </option>
           ))}
         </select>
+        {!hideTeamFilter && (
+          <select
+            value={team}
+            onChange={(e) => {
+              setTeam(e.target.value);
+              setShowAll(false);
+            }}
+            className="rounded-md border border-gray-300 bg-white px-2 py-2 dark:border-gray-700 dark:bg-gray-900"
+          >
+            <option value="">All teams</option>
+            {teams.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+        )}
         {!hideHofToggle && (
           <label className="flex items-center gap-2">
             <input
