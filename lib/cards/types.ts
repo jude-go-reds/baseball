@@ -10,6 +10,16 @@ export type HitterCareer = {
   sb: number;
 };
 
+export type PitcherCareer = {
+  w: number;
+  l: number;
+  era: string;
+  whip: string;
+  k: number;
+  ip: string;
+  sv: number;
+};
+
 export type Honors = {
   worldSeries: number;
   mvp: number;
@@ -28,7 +38,8 @@ export type Player = {
   years: string;
   photoUrl: string | null;
   honors: Honors;
-  hitting: HitterCareer;
+  hitting: HitterCareer | null;
+  pitching: PitcherCareer | null;
 };
 
 export const CARD_WIDTH = 800;
@@ -48,4 +59,32 @@ export function buildAwardTiles(h: Honors): AwardTile[] {
   if (h.goldGlove) tiles.push({ value: String(h.goldGlove), label: "Gold Glove" });
   if (h.silverSlugger) tiles.push({ value: String(h.silverSlugger), label: "Silver Slugger" });
   return tiles;
+}
+
+export type StatTile = { label: string; value: string };
+
+export function buildHittingTiles(h: HitterCareer): StatTile[] {
+  return [
+    { label: "AVG", value: h.avg },
+    { label: "OBP", value: h.obp },
+    { label: "SLG", value: h.slg },
+    { label: "OPS", value: h.ops },
+    { label: "HR", value: String(h.hr) },
+    { label: "RBI", value: String(h.rbi) },
+    { label: "H", value: String(h.h) },
+    { label: "R", value: String(h.r) },
+    { label: "SB", value: String(h.sb) },
+  ];
+}
+
+export function buildPitchingTiles(p: PitcherCareer): StatTile[] {
+  return [
+    { label: "W", value: String(p.w) },
+    { label: "L", value: String(p.l) },
+    { label: "ERA", value: p.era },
+    { label: "WHIP", value: p.whip },
+    { label: "K", value: String(p.k) },
+    { label: "IP", value: p.ip },
+    { label: "SV", value: String(p.sv) },
+  ];
 }

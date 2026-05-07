@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { CARD_HEIGHT, CARD_WIDTH, type CardSide } from "@/lib/cards/types";
 import { ModernFront } from "@/lib/cards/templates/modern/front";
 import { ModernBack } from "@/lib/cards/templates/modern/back";
-import { getDemoPlayer } from "@/lib/cards/demoData";
+import { getPlayer } from "@/lib/players/getPlayer";
 
 function parseSide(value: string | null): CardSide {
   return value === "back" ? "back" : "front";
@@ -13,7 +13,7 @@ export async function GET(
   ctx: RouteContext<"/api/card/[id]">,
 ) {
   const { id } = await ctx.params;
-  const player = getDemoPlayer(id);
+  const player = await getPlayer(id);
 
   if (!player) {
     return new Response(`No player found for id "${id}"`, { status: 404 });

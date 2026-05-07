@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getDemoPlayer } from "@/lib/cards/demoData";
+import { getPlayer } from "@/lib/players/getPlayer";
 import { FlipCard } from "./FlipCard";
 
 export default async function CardPage({
@@ -9,7 +9,7 @@ export default async function CardPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const player = getDemoPlayer(id);
+  const player = await getPlayer(id);
 
   if (!player) {
     notFound();
