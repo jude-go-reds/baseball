@@ -43,6 +43,17 @@ export function MyLineups() {
     }
   }
 
+  async function onCreateStarter() {
+    if (!userId || busy) return;
+    setBusy(true);
+    try {
+      const lineup = await createLineup("My All-Stars");
+      router.push(`/lineup/${userId}/${lineup.id}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -85,12 +96,21 @@ export function MyLineups() {
       )}
 
       {lineups.length === 0 && !creating && (
-        <div className="flex flex-col gap-3 rounded-md border border-dashed border-gray-300 p-8 text-center dark:border-gray-700">
+        <div className="flex flex-col items-center gap-4 rounded-md border border-dashed border-gray-300 p-8 text-center dark:border-gray-700">
           <p className="text-sm text-gray-600 dark:text-gray-300">
             No lineups yet.
           </p>
+          <button
+            type="button"
+            onClick={() => void onCreateStarter()}
+            disabled={busy}
+            className="rounded-md bg-black px-5 py-2.5 text-base font-medium text-white hover:bg-gray-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+          >
+            Create starter lineup
+          </button>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Create one above to start drafting your fantasy team.
+            We&apos;ll spin up an empty lineup called &ldquo;My All-Stars&rdquo;
+            and drop you on the field. You can rename or delete it any time.
           </p>
         </div>
       )}
