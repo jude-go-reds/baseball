@@ -21,6 +21,15 @@ export type SearchEntry = {
   opsPlus?: number;
   /** Career ERA+ (career-weighted). */
   eraPlus?: number;
+  /** Career counts for major MLB awards (sum of AL + NL where applicable). */
+  mvp?: number;
+  cyYoung?: number;
+  roy?: number;
+  wsChamp?: number;
+  wsMvp?: number;
+  allStar?: number;
+  goldGlove?: number;
+  silverSlugger?: number;
 };
 
 const all = indexData as SearchEntry[];

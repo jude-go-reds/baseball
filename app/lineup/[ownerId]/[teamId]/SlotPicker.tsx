@@ -20,6 +20,15 @@ type Props = {
 const RESULT_LIMIT = 30;
 
 type StatKey = "warBat" | "warPit" | "opsPlus" | "eraPlus";
+type AwardKey =
+  | "mvp"
+  | "cyYoung"
+  | "roy"
+  | "wsChamp"
+  | "wsMvp"
+  | "allStar"
+  | "goldGlove"
+  | "silverSlugger";
 
 type Filters = {
   name: string;
@@ -28,6 +37,13 @@ type Filters = {
   minWarPit: string;
   minOpsPlus: string;
   minEraPlus: string;
+  minMvp: string;
+  minCyYoung: string;
+  minRoy: string;
+  minWsChamp: string;
+  minAllStar: string;
+  minGoldGlove: string;
+  minSilverSlugger: string;
 };
 
 const EMPTY_FILTERS: Filters = {
@@ -37,7 +53,24 @@ const EMPTY_FILTERS: Filters = {
   minWarPit: "",
   minOpsPlus: "",
   minEraPlus: "",
+  minMvp: "",
+  minCyYoung: "",
+  minRoy: "",
+  minWsChamp: "",
+  minAllStar: "",
+  minGoldGlove: "",
+  minSilverSlugger: "",
 };
+
+const AWARD_FILTERS: Array<{ key: AwardKey; field: keyof Filters; label: string }> = [
+  { key: "mvp", field: "minMvp", label: "MVP" },
+  { key: "cyYoung", field: "minCyYoung", label: "Cy Young" },
+  { key: "roy", field: "minRoy", label: "Rookie of Year" },
+  { key: "wsChamp", field: "minWsChamp", label: "WS rings" },
+  { key: "allStar", field: "minAllStar", label: "All-Star" },
+  { key: "goldGlove", field: "minGoldGlove", label: "Gold Glove" },
+  { key: "silverSlugger", field: "minSilverSlugger", label: "Silver Slugger" },
+];
 
 export function SlotPicker({
   slot,
@@ -48,7 +81,10 @@ export function SlotPicker({
 }: Props) {
   const { byId } = usePlayerIndex(true);
   const [f, setF] = useState<Filters>(EMPTY_FILTERS);
-  const [advanced, setAdvanced] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
+  const [awardsOpen, setAwardsOpen] = useState(false);
+
+  const isPitcherSlot = slot === "P" || slot === "RP";
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -83,13 +119,20 @@ export function SlotPicker({
   const minWarPit = parseNum(f.minWarPit);
   const minOpsPlus = parseNum(f.minOpsPlus);
   const minEraPlus = parseNum(f.minEraPlus);
+  const awardMins: Partial<Record<AwardKey, number>> = {};
+  for (const af of AWARD_FILTERS) {
+    const n = parseNum(f[af.field] as string);
+    if (n !== null) awardMins[af.key] = n;
+  }
 
   const anyStatFilter =
     minWarBat !== null ||
     minWarPit !== null ||
     minOpsPlus !== null ||
     minEraPlus !== null;
-  const anyFilter = Boolean(f.name.trim()) || f.hofOnly || anyStatFilter;
+  const anyAwardFilter = Object.keys(awardMins).length > 0;
+  const anyFilter =
+    Boolean(f.name.trim()) || f.hofOnly || anyStatFilter || anyAwardFilter;
 
   const filtered = useMemo<PlayerIndexEntry[] | null>(() => {
     if (!eligible) return null;
@@ -103,16 +146,22 @@ export function SlotPicker({
       if (minWarPit !== null && (e.warPit ?? -Infinity) < minWarPit) return false;
       if (minOpsPlus !== null && (e.opsPlus ?? -Infinity) < minOpsPlus) return false;
       if (minEraPlus !== null && (e.eraPlus ?? -Infinity) < minEraPlus) return false;
+      for (const [k, min] of Object.entries(awardMins)) {
+        if ((e[k as AwardKey] ?? 0) < (min as number)) return false;
+      }
       return true;
     });
-  }, [eligible, fuse, f.name, f.hofOnly, minWarBat, minWarPit, minOpsPlus, minEraPlus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eligible, fuse, f]);
 
   const sorted = useMemo<PlayerIndexEntry[] | null>(() => {
     if (!filtered) return null;
-    const sortKey = pickSortKey(f);
-    if (!sortKey) return filtered;
+    const statKey = pickStatSortKey(f);
+    const awardKey = pickAwardSortKey(f);
+    const key = statKey ?? awardKey;
+    if (!key) return filtered;
     return [...filtered].sort(
-      (a, b) => (b[sortKey] ?? -Infinity) - (a[sortKey] ?? -Infinity),
+      (a, b) => (b[key] ?? -Infinity) - (a[key] ?? -Infinity),
     );
   }, [filtered, f]);
 
@@ -176,18 +225,18 @@ export function SlotPicker({
             />
             Hall of Fame
           </label>
-          <button
-            type="button"
-            onClick={() => setAdvanced((v) => !v)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900"
-          >
-            {advanced ? "Hide stats" : "Filter by stats"}
-            {anyStatFilter && !advanced && (
-              <span className="ml-1.5 rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                on
-              </span>
-            )}
-          </button>
+          <DisclosureButton
+            label="Stats"
+            open={statsOpen}
+            active={anyStatFilter}
+            onClick={() => setStatsOpen((v) => !v)}
+          />
+          <DisclosureButton
+            label="Awards"
+            open={awardsOpen}
+            active={anyAwardFilter}
+            onClick={() => setAwardsOpen((v) => !v)}
+          />
           {anyFilter && (
             <button
               type="button"
@@ -199,30 +248,50 @@ export function SlotPicker({
           )}
         </div>
 
-        {advanced && (
+        {statsOpen && (
           <div className="grid grid-cols-2 gap-2">
-            <NumberField
-              label="Min WAR (bat)"
-              value={f.minWarBat}
-              onChange={(v) => update({ minWarBat: v })}
-            />
-            <NumberField
-              label="Min WAR (pit)"
-              value={f.minWarPit}
-              onChange={(v) => update({ minWarPit: v })}
-            />
-            <NumberField
-              label="Min OPS+"
-              hint="100 = avg"
-              value={f.minOpsPlus}
-              onChange={(v) => update({ minOpsPlus: v })}
-            />
-            <NumberField
-              label="Min ERA+"
-              hint="100 = avg"
-              value={f.minEraPlus}
-              onChange={(v) => update({ minEraPlus: v })}
-            />
+            {isPitcherSlot ? (
+              <>
+                <NumberField
+                  label="Min WAR (pit)"
+                  value={f.minWarPit}
+                  onChange={(v) => update({ minWarPit: v })}
+                />
+                <NumberField
+                  label="Min ERA+"
+                  hint="100 = avg"
+                  value={f.minEraPlus}
+                  onChange={(v) => update({ minEraPlus: v })}
+                />
+              </>
+            ) : (
+              <>
+                <NumberField
+                  label="Min WAR (bat)"
+                  value={f.minWarBat}
+                  onChange={(v) => update({ minWarBat: v })}
+                />
+                <NumberField
+                  label="Min OPS+"
+                  hint="100 = avg"
+                  value={f.minOpsPlus}
+                  onChange={(v) => update({ minOpsPlus: v })}
+                />
+              </>
+            )}
+          </div>
+        )}
+
+        {awardsOpen && (
+          <div className="grid grid-cols-2 gap-2">
+            {AWARD_FILTERS.map((a) => (
+              <NumberField
+                key={a.key}
+                label={`Min ${a.label}`}
+                value={f[a.field] as string}
+                onChange={(v) => update({ [a.field]: v } as Partial<Filters>)}
+              />
+            ))}
           </div>
         )}
 
@@ -262,13 +331,14 @@ export function SlotPicker({
                         loading="lazy"
                       />
                       <div className="flex flex-1 flex-col">
-                        <span className="flex items-baseline gap-2">
+                        <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                           <span className="text-sm font-medium">{p.name}</span>
                           {p.hofYear !== undefined && (
                             <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
                               HoF
                             </span>
                           )}
+                          <AwardBadges entry={p} />
                         </span>
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           {[p.team, p.position, p.years].filter(Boolean).join(" · ")}
@@ -289,6 +359,33 @@ export function SlotPicker({
         </div>
       </div>
     </div>
+  );
+}
+
+function DisclosureButton({
+  label,
+  open,
+  active,
+  onClick,
+}: {
+  label: string;
+  open: boolean;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900"
+    >
+      {open ? `Hide ${label.toLowerCase()}` : `Filter by ${label.toLowerCase()}`}
+      {active && !open && (
+        <span className="ml-1.5 rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+          on
+        </span>
+      )}
+    </button>
   );
 }
 
@@ -322,6 +419,27 @@ function NumberField({
         className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-base dark:border-gray-700 dark:bg-gray-900"
       />
     </label>
+  );
+}
+
+function AwardBadges({ entry }: { entry: PlayerIndexEntry }) {
+  const badges: Array<{ label: string; value: number }> = [];
+  if (entry.mvp) badges.push({ label: "MVP", value: entry.mvp });
+  if (entry.cyYoung) badges.push({ label: "Cy", value: entry.cyYoung });
+  if (entry.wsChamp) badges.push({ label: "WS", value: entry.wsChamp });
+  if (entry.allStar) badges.push({ label: "AS", value: entry.allStar });
+  if (badges.length === 0) return null;
+  return (
+    <>
+      {badges.map((b) => (
+        <span
+          key={b.label}
+          className="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-900 dark:bg-blue-900/40 dark:text-blue-100"
+        >
+          {b.value > 1 ? `${b.value}× ${b.label}` : b.label}
+        </span>
+      ))}
+    </>
   );
 }
 
@@ -361,10 +479,17 @@ function parseNum(s: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function pickSortKey(f: Filters): StatKey | null {
+function pickStatSortKey(f: Filters): StatKey | null {
   if (f.minWarBat) return "warBat";
   if (f.minWarPit) return "warPit";
   if (f.minOpsPlus) return "opsPlus";
   if (f.minEraPlus) return "eraPlus";
+  return null;
+}
+
+function pickAwardSortKey(f: Filters): AwardKey | null {
+  for (const af of AWARD_FILTERS) {
+    if (f[af.field]) return af.key;
+  }
   return null;
 }

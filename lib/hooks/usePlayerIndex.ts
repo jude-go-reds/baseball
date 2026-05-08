@@ -14,6 +14,14 @@ export type PlayerIndexEntry = {
   warPit?: number;
   opsPlus?: number;
   eraPlus?: number;
+  mvp?: number;
+  cyYoung?: number;
+  roy?: number;
+  wsChamp?: number;
+  wsMvp?: number;
+  allStar?: number;
+  goldGlove?: number;
+  silverSlugger?: number;
 };
 
 // Module-level cache so multiple components share the same fetch.
