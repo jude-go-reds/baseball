@@ -12,12 +12,20 @@ export default function Home() {
 
       <PlayerSearch />
 
-      <Link
-        href="/browse"
-        className="text-sm text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
-      >
-        Browse galleries &rarr;
-      </Link>
+      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
+        <Link
+          href="/browse"
+          className="text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
+        >
+          Browse galleries &rarr;
+        </Link>
+        <Link
+          href="/library"
+          className="text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
+        >
+          Library &rarr;
+        </Link>
+      </div>
     </main>
   );
 }

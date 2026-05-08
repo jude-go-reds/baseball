@@ -7,6 +7,7 @@ import {
   parseStyle,
 } from "@/lib/cards/templates/registry";
 import { FlipCard } from "./FlipCard";
+import { FavoriteButton } from "./FavoriteButton";
 
 export default async function CardPage({
   params,
@@ -55,7 +56,8 @@ export default async function CardPage({
         Click the card to flip
       </p>
 
-      <div className="flex gap-3 text-sm">
+      <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
+        <FavoriteButton id={player.id} />
         <a
           href={`/api/card/${player.id}?style=${style}&side=front`}
           download={`${player.id}-${style}-front.png`}
