@@ -43,3 +43,12 @@ export function teamLogoUrl(abbr: string): string | null {
   const id = TEAM_ID[abbr.toUpperCase()];
   return id ? `https://www.mlbstatic.com/team-logos/${id}.svg` : null;
 }
+
+// `Player.team` is a slash-joined list of every franchise a player suited
+// up for, in chronological debut order. The card uses the first one as the
+// "primary" — same convention as the search index.
+export function primaryTeamLogoUrl(team: string): string | null {
+  const first = team.split(" / ")[0]?.trim();
+  if (!first) return null;
+  return teamLogoUrl(first);
+}

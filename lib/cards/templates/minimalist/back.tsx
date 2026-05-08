@@ -5,6 +5,7 @@ import {
   buildHittingTiles,
   buildPitchingTiles,
 } from "../../types";
+import { primaryTeamLogoUrl } from "@/lib/teams/logos";
 
 const BG = "#f8f8f6";
 const FG = "#0a0a0a";
@@ -45,6 +46,7 @@ export function MinimalistBack({ player }: { player: Player }) {
   if (player.hitting) sections.push({ title: "Batting", tiles: buildHittingTiles(player.hitting) });
   if (player.pitching) sections.push({ title: "Pitching", tiles: buildPitchingTiles(player.pitching) });
   const awards = buildAwardTiles(player.honors);
+  const logo = primaryTeamLogoUrl(player.team);
 
   return (
     <div
@@ -61,30 +63,36 @@ export function MinimalistBack({ player }: { player: Player }) {
       }}
     >
       {/* Header: name + position•years */}
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <div
-          style={{
-            display: "flex",
-            fontSize: 48,
-            fontWeight: 900,
-            lineHeight: 1,
-            letterSpacing: -1,
-          }}
-        >
-          {player.name}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 48,
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: -1,
+            }}
+          >
+            {player.name}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              marginTop: 8,
+              fontSize: 13,
+              letterSpacing: 4,
+              textTransform: "uppercase",
+              color: MUTED,
+            }}
+          >
+            {[player.position, player.team, player.years].filter(Boolean).join("  ·  ")}
+          </div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            marginTop: 8,
-            fontSize: 13,
-            letterSpacing: 4,
-            textTransform: "uppercase",
-            color: MUTED,
-          }}
-        >
-          {[player.position, player.team, player.years].filter(Boolean).join("  ·  ")}
-        </div>
+        {logo && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logo} alt="" width={72} height={72} style={{ marginLeft: 16 }} />
+        )}
       </div>
 
       {/* Awards row: count + label inline, separated by big bullets */}

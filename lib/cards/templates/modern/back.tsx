@@ -5,6 +5,7 @@ import {
   buildHittingTiles,
   buildPitchingTiles,
 } from "../../types";
+import { primaryTeamLogoUrl } from "@/lib/teams/logos";
 
 const GOLD = "#c9a227";
 const DARK_GREEN = "#0b3d2e";
@@ -72,40 +73,48 @@ export function ModernBack({ player }: { player: Player }) {
 }
 
 function Header({ player }: { player: Player }) {
+  const logo = primaryTeamLogoUrl(player.team);
   return (
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-between",
         background: DARK_GREEN,
         color: CREAM,
         padding: "20px 28px",
         borderBottom: `4px solid ${GOLD}`,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          fontSize: 40,
-          fontWeight: 900,
-          lineHeight: 1,
-          letterSpacing: -0.5,
-        }}
-      >
-        {player.name}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 40,
+            fontWeight: 900,
+            lineHeight: 1,
+            letterSpacing: -0.5,
+          }}
+        >
+          {player.name}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 8,
+            fontSize: 18,
+            color: GOLD,
+            fontWeight: 700,
+            letterSpacing: 1,
+          }}
+        >
+          {[player.position, player.team, player.years].filter(Boolean).join("  •  ")}
+        </div>
       </div>
-      <div
-        style={{
-          display: "flex",
-          marginTop: 8,
-          fontSize: 18,
-          color: GOLD,
-          fontWeight: 700,
-          letterSpacing: 1,
-        }}
-      >
-        {[player.position, player.team, player.years].filter(Boolean).join("  •  ")}
-      </div>
+      {logo && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={logo} alt="" width={72} height={72} style={{ marginLeft: 16 }} />
+      )}
     </div>
   );
 }

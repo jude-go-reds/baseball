@@ -5,6 +5,7 @@ import {
   buildHittingTiles,
   buildPitchingTiles,
 } from "../../types";
+import { primaryTeamLogoUrl } from "@/lib/teams/logos";
 
 const BG = "#f1d77a";       // 1954 mustard back panel
 const PANEL = "#fff7d8";
@@ -17,6 +18,7 @@ export function Topps54Back({ player }: { player: Player }) {
   if (player.hitting) sections.push({ title: "Career Batting", tiles: buildHittingTiles(player.hitting) });
   if (player.pitching) sections.push({ title: "Career Pitching", tiles: buildPitchingTiles(player.pitching) });
   const awards = buildAwardTiles(player.honors);
+  const logo = primaryTeamLogoUrl(player.team);
 
   return (
     <div
@@ -46,35 +48,42 @@ export function Topps54Back({ player }: { player: Player }) {
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "space-between",
             background: ACCENT,
             color: PANEL,
             padding: "16px 24px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              fontSize: 38,
-              fontWeight: 900,
-              letterSpacing: -0.5,
-              lineHeight: 1,
-              textTransform: "uppercase",
-            }}
-          >
-            {player.name}
+          <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <div
+              style={{
+                display: "flex",
+                fontSize: 38,
+                fontWeight: 900,
+                letterSpacing: -0.5,
+                lineHeight: 1,
+                textTransform: "uppercase",
+              }}
+            >
+              {player.name}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                marginTop: 6,
+                fontSize: 16,
+                letterSpacing: 3,
+                textTransform: "uppercase",
+              }}
+            >
+              {[player.position, player.team, player.years].filter(Boolean).join("  •  ")}
+            </div>
           </div>
-          <div
-            style={{
-              display: "flex",
-              marginTop: 6,
-              fontSize: 16,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-            }}
-          >
-            {[player.position, player.team, player.years].filter(Boolean).join("  •  ")}
-          </div>
+          {logo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo} alt="" width={64} height={64} style={{ marginLeft: 16 }} />
+          )}
         </div>
 
         {/* "Inside Baseball" mock cartoon strip + awards */}

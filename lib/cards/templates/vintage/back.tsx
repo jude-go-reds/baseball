@@ -5,6 +5,7 @@ import {
   buildHittingTiles,
   buildPitchingTiles,
 } from "../../types";
+import { primaryTeamLogoUrl } from "@/lib/teams/logos";
 
 const SEPIA_BG = "#e9d9b3";
 const SEPIA_DARK = "#b48a45";
@@ -17,6 +18,7 @@ export function VintageBack({ player }: { player: Player }) {
   if (player.hitting) sections.push({ title: "Batting", tiles: buildHittingTiles(player.hitting) });
   if (player.pitching) sections.push({ title: "Pitching", tiles: buildPitchingTiles(player.pitching) });
   const awards = buildAwardTiles(player.honors);
+  const logo = primaryTeamLogoUrl(player.team);
 
   return (
     <div
@@ -47,19 +49,26 @@ export function VintageBack({ player }: { player: Player }) {
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "space-between",
             background: BAND,
             color: PAPER,
             padding: "16px 24px",
             borderBottom: `3px solid ${SEPIA_DARK}`,
           }}
         >
-          <div style={{ display: "flex", fontSize: 36, fontWeight: 900, letterSpacing: -0.5 }}>
-            {player.name.toUpperCase()}
+          <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <div style={{ display: "flex", fontSize: 36, fontWeight: 900, letterSpacing: -0.5 }}>
+              {player.name.toUpperCase()}
+            </div>
+            <div style={{ display: "flex", marginTop: 6, fontSize: 18, letterSpacing: 1 }}>
+              {[player.position, player.team, player.years].filter(Boolean).join("  •  ")}
+            </div>
           </div>
-          <div style={{ display: "flex", marginTop: 6, fontSize: 18, letterSpacing: 1 }}>
-            {[player.position, player.team, player.years].filter(Boolean).join("  •  ")}
-          </div>
+          {logo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo} alt="" width={64} height={64} style={{ marginLeft: 16 }} />
+          )}
         </div>
 
         {awards.length > 0 && (

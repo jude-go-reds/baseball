@@ -5,6 +5,7 @@ import {
   buildHittingTiles,
   buildPitchingTiles,
 } from "../../types";
+import { primaryTeamLogoUrl } from "@/lib/teams/logos";
 
 const BG = "#f1d2c5";        // 1989 dusty pink back
 const PAPER = "#fbf1df";
@@ -18,6 +19,7 @@ export function Topps89Back({ player }: { player: Player }) {
   if (player.hitting) sections.push({ title: "Career Batting", tiles: buildHittingTiles(player.hitting) });
   if (player.pitching) sections.push({ title: "Career Pitching", tiles: buildPitchingTiles(player.pitching) });
   const awards = buildAwardTiles(player.honors);
+  const logo = primaryTeamLogoUrl(player.team);
 
   return (
     <div
@@ -82,22 +84,28 @@ export function Topps89Back({ player }: { player: Player }) {
               {[player.position, player.team, player.years].filter(Boolean).join("  •  ")}
             </div>
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: RED,
-              color: PAPER,
-              padding: "6px 14px",
-              border: `2px solid ${PAPER}`,
-              fontSize: 14,
-              letterSpacing: 4,
-              textTransform: "uppercase",
-              fontWeight: 900,
-            }}
-          >
-            #89
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {logo && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logo} alt="" width={56} height={56} />
+            )}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: RED,
+                color: PAPER,
+                padding: "6px 14px",
+                border: `2px solid ${PAPER}`,
+                fontSize: 14,
+                letterSpacing: 4,
+                textTransform: "uppercase",
+                fontWeight: 900,
+              }}
+            >
+              #89
+            </div>
           </div>
         </div>
 

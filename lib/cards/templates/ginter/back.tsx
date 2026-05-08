@@ -5,6 +5,7 @@ import {
   buildHittingTiles,
   buildPitchingTiles,
 } from "../../types";
+import { primaryTeamLogoUrl } from "@/lib/teams/logos";
 
 const PAPER = "#f3e7c4";
 const PAPER_HI = "#fff7d8";
@@ -21,6 +22,7 @@ export function GinterBack({ player }: { player: Player }) {
   if (player.hitting) sections.push({ title: "Career Batting", tiles: buildHittingTiles(player.hitting) });
   if (player.pitching) sections.push({ title: "Career Pitching", tiles: buildPitchingTiles(player.pitching) });
   const awards = buildAwardTiles(player.honors);
+  const logo = primaryTeamLogoUrl(player.team);
 
   return (
     <div
@@ -65,6 +67,10 @@ export function GinterBack({ player }: { player: Player }) {
               paddingBottom: 8,
             }}
           >
+            {logo && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logo} alt="" width={64} height={64} style={{ marginBottom: 4 }} />
+            )}
             <div
               style={{
                 display: "flex",

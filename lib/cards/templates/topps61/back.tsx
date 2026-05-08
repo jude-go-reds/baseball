@@ -5,6 +5,7 @@ import {
   buildHittingTiles,
   buildPitchingTiles,
 } from "../../types";
+import { primaryTeamLogoUrl } from "@/lib/teams/logos";
 
 const BG = "#cfe6c8";       // 1961 mint back
 const PAPER = "#f4efe1";
@@ -18,6 +19,7 @@ export function Topps61Back({ player }: { player: Player }) {
   if (player.hitting) sections.push({ title: "Career Batting", tiles: buildHittingTiles(player.hitting) });
   if (player.pitching) sections.push({ title: "Career Pitching", tiles: buildPitchingTiles(player.pitching) });
   const awards = buildAwardTiles(player.honors);
+  const logo = primaryTeamLogoUrl(player.team);
 
   return (
     <div
@@ -80,20 +82,26 @@ export function Topps61Back({ player }: { player: Player }) {
             </div>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              background: RED,
-              color: PAPER,
-              padding: "6px 14px",
-              border: `2px solid ${PAPER}`,
-              fontSize: 14,
-              letterSpacing: 4,
-              textTransform: "uppercase",
-              fontWeight: 800,
-            }}
-          >
-            1961
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {logo && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logo} alt="" width={56} height={56} />
+            )}
+            <div
+              style={{
+                display: "flex",
+                background: RED,
+                color: PAPER,
+                padding: "6px 14px",
+                border: `2px solid ${PAPER}`,
+                fontSize: 14,
+                letterSpacing: 4,
+                textTransform: "uppercase",
+                fontWeight: 800,
+              }}
+            >
+              1961
+            </div>
           </div>
         </div>
 
