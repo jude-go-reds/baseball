@@ -12,26 +12,18 @@ import {
   renameCollection,
   subscribeCollections,
 } from "@/lib/collections";
+import { usePlayerIndex, type PlayerIndexEntry } from "@/lib/hooks/usePlayerIndex";
 
-type SearchEntry = {
-  id: string;
-  name: string;
-  team: string;
-  position: string;
-  years: string;
-};
-
-type Props = {
-  /** Map of player id -> entry. Provided by LibraryList so we don't refetch. */
-  index: Map<string, SearchEntry> | null;
-};
-
-export function CollectionsSection({ index }: Props) {
+export function MyCollections() {
   const collections = useSyncExternalStore(
     subscribeCollections,
     getCollectionsSnapshot,
     getCollectionsServerSnapshot,
   );
+  const { byId } = usePlayerIndex(
+    collections.some((c) => c.playerIds.length > 0),
+  );
+
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [busy, setBusy] = useState(false);
@@ -50,18 +42,16 @@ export function CollectionsSection({ index }: Props) {
   }
 
   return (
-    <section className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">
-          Collections{" "}
-          <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-            ({collections.length})
-          </span>
-        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {collections.length}{" "}
+          {collections.length === 1 ? "collection" : "collections"}
+        </p>
         <button
           type="button"
           onClick={() => setCreating((v) => !v)}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-xs hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900"
+          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900"
         >
           {creating ? "Cancel" : "+ New collection"}
         </button>
@@ -94,18 +84,23 @@ export function CollectionsSection({ index }: Props) {
       )}
 
       {collections.length === 0 && !creating && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          No collections yet. Create one to group favorited players into named
-          lists.
-        </p>
+        <div className="flex flex-col gap-3 rounded-md border border-dashed border-gray-300 p-8 text-center dark:border-gray-700">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            No collections yet.
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Create one above, or open a player&apos;s card and click{" "}
+            <span className="font-medium">Add to collection</span>.
+          </p>
+        </div>
       )}
 
       <div className="flex flex-col gap-3">
         {collections.map((c) => (
-          <CollectionCard key={c.id} collection={c} index={index} />
+          <CollectionCard key={c.id} collection={c} index={byId} />
         ))}
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -114,7 +109,7 @@ function CollectionCard({
   index,
 }: {
   collection: Collection;
-  index: Map<string, SearchEntry> | null;
+  index: Map<string, PlayerIndexEntry> | null;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [renaming, setRenaming] = useState(false);
@@ -128,7 +123,7 @@ function CollectionCard({
     if (!index) return null;
     return c.playerIds
       .map((id) => index.get(id))
-      .filter((e): e is SearchEntry => Boolean(e));
+      .filter((e): e is PlayerIndexEntry => Boolean(e));
   }, [index, c.playerIds]);
 
   async function onRename() {

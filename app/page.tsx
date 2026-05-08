@@ -25,6 +25,12 @@ export default function Home() {
         >
           Library &rarr;
         </Link>
+        <Link
+          href="/collections"
+          className="text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
+        >
+          Collections &rarr;
+        </Link>
       </div>
     </main>
   );

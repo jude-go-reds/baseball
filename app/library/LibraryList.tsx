@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useMemo, useSyncExternalStore } from "react";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
+import { usePlayerIndex } from "@/lib/hooks/usePlayerIndex";
 import {
   getFavorites,
   getFavoritesServerSnapshot,
@@ -14,12 +14,6 @@ import {
   toggleFavorite,
   toggleFavoriteTeam,
 } from "@/lib/favorites";
-import {
-  getCollectionsServerSnapshot,
-  getCollectionsSnapshot,
-  subscribeCollections,
-} from "@/lib/collections";
-import { CollectionsSection } from "./CollectionsSection";
 
 type SearchEntry = {
   id: string;
@@ -32,7 +26,6 @@ type SearchEntry = {
 };
 
 export function LibraryList() {
-  const { isSignedIn } = useAuth();
   const favIds = useSyncExternalStore(
     subscribeFavorites,
     getFavorites,
@@ -43,39 +36,9 @@ export function LibraryList() {
     getFavoriteTeams,
     getFavoriteTeamsServerSnapshot,
   );
-  const collections = useSyncExternalStore(
-    subscribeCollections,
-    getCollectionsSnapshot,
-    getCollectionsServerSnapshot,
-  );
 
-  const [index, setIndex] = useState<SearchEntry[] | null>(null);
-  const [fetchFailed, setFetchFailed] = useState(false);
+  const { byId: indexById, failed: fetchFailed } = usePlayerIndex(favIds.length > 0);
   const mounted = useIsMounted();
-
-  const needsIndex = favIds.length > 0 || collections.some((c) => c.playerIds.length > 0);
-
-  useEffect(() => {
-    if (!needsIndex) return;
-    if (index !== null) return;
-    let cancelled = false;
-    fetch("/players.json")
-      .then((r) => r.json() as Promise<SearchEntry[]>)
-      .then((data) => {
-        if (!cancelled) setIndex(data);
-      })
-      .catch(() => {
-        if (!cancelled) setFetchFailed(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [needsIndex, index]);
-
-  const indexById = useMemo(() => {
-    if (!index) return null;
-    return new Map(index.map((e) => [e.id, e]));
-  }, [index]);
 
   const playerEntries = useMemo(() => {
     if (!indexById) return null;
@@ -90,8 +53,7 @@ export function LibraryList() {
     return <Skeleton />;
   }
 
-  const empty =
-    favIds.length === 0 && favTeams.length === 0 && collections.length === 0;
+  const empty = favIds.length === 0 && favTeams.length === 0;
 
   if (empty) {
     return (
@@ -112,8 +74,6 @@ export function LibraryList() {
 
   return (
     <div className="flex flex-col gap-8">
-      {isSignedIn && <CollectionsSection index={indexById} />}
-
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">
           Teams{" "}
