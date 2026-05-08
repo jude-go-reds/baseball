@@ -19,7 +19,7 @@ type Props = {
 
 const RESULT_LIMIT = 30;
 
-type StatKey = "warBat" | "warPit" | "opsPlus" | "eraPlus";
+type StatKey = "warBat" | "warPit" | "opsPlus" | "eraPlus" | "homeRuns";
 type AwardKey =
   | "mvp"
   | "cyYoung"
@@ -37,6 +37,8 @@ type Filters = {
   minWarPit: string;
   minOpsPlus: string;
   minEraPlus: string;
+  minAvg: string;
+  minHr: string;
   minMvp: string;
   minCyYoung: string;
   minRoy: string;
@@ -53,6 +55,8 @@ const EMPTY_FILTERS: Filters = {
   minWarPit: "",
   minOpsPlus: "",
   minEraPlus: "",
+  minAvg: "",
+  minHr: "",
   minMvp: "",
   minCyYoung: "",
   minRoy: "",
@@ -119,6 +123,8 @@ export function SlotPicker({
   const minWarPit = parseNum(f.minWarPit);
   const minOpsPlus = parseNum(f.minOpsPlus);
   const minEraPlus = parseNum(f.minEraPlus);
+  const minAvg = parseNum(f.minAvg);
+  const minHr = parseNum(f.minHr);
   const awardMins: Partial<Record<AwardKey, number>> = {};
   for (const af of AWARD_FILTERS) {
     const n = parseNum(f[af.field] as string);
@@ -129,7 +135,9 @@ export function SlotPicker({
     minWarBat !== null ||
     minWarPit !== null ||
     minOpsPlus !== null ||
-    minEraPlus !== null;
+    minEraPlus !== null ||
+    minAvg !== null ||
+    minHr !== null;
   const anyAwardFilter = Object.keys(awardMins).length > 0;
   const anyFilter =
     Boolean(f.name.trim()) || f.hofOnly || anyStatFilter || anyAwardFilter;
@@ -146,6 +154,8 @@ export function SlotPicker({
       if (minWarPit !== null && (e.warPit ?? -Infinity) < minWarPit) return false;
       if (minOpsPlus !== null && (e.opsPlus ?? -Infinity) < minOpsPlus) return false;
       if (minEraPlus !== null && (e.eraPlus ?? -Infinity) < minEraPlus) return false;
+      if (minAvg !== null && parseAvg(e.avg) < minAvg) return false;
+      if (minHr !== null && (e.homeRuns ?? -Infinity) < minHr) return false;
       for (const [k, min] of Object.entries(awardMins)) {
         if ((e[k as AwardKey] ?? 0) < (min as number)) return false;
       }
@@ -156,13 +166,22 @@ export function SlotPicker({
 
   const sorted = useMemo<PlayerIndexEntry[] | null>(() => {
     if (!filtered) return null;
+    // Sort priority: explicit AVG threshold first, then other stat
+    // thresholds, then any award threshold.
+    if (f.minAvg) {
+      return [...filtered].sort(
+        (a, b) => parseAvg(b.avg) - parseAvg(a.avg),
+      );
+    }
     const statKey = pickStatSortKey(f);
     const awardKey = pickAwardSortKey(f);
     const key = statKey ?? awardKey;
     if (!key) return filtered;
-    return [...filtered].sort(
-      (a, b) => (b[key] ?? -Infinity) - (a[key] ?? -Infinity),
-    );
+    return [...filtered].sort((a, b) => {
+      const av = (a[key] as number | undefined) ?? -Infinity;
+      const bv = (b[key] as number | undefined) ?? -Infinity;
+      return bv - av;
+    });
   }, [filtered, f]);
 
   const visible = sorted ? sorted.slice(0, RESULT_LIMIT) : null;
@@ -267,6 +286,17 @@ export function SlotPicker({
             ) : (
               <>
                 <NumberField
+                  label="Min AVG"
+                  hint=".300 = elite"
+                  value={f.minAvg}
+                  onChange={(v) => update({ minAvg: v })}
+                />
+                <NumberField
+                  label="Min HR"
+                  value={f.minHr}
+                  onChange={(v) => update({ minHr: v })}
+                />
+                <NumberField
                   label="Min WAR (bat)"
                   value={f.minWarBat}
                   onChange={(v) => update({ minWarBat: v })}
@@ -344,7 +374,7 @@ export function SlotPicker({
                           {[p.team, p.position, p.years].filter(Boolean).join(" · ")}
                         </span>
                       </div>
-                      <StatPills entry={p} />
+                      <StatPills entry={p} pitcher={isPitcherSlot} />
                       {currentPlayerId === p.id && (
                         <span className="text-xs text-blue-600 dark:text-blue-400">
                           current
@@ -443,22 +473,37 @@ function AwardBadges({ entry }: { entry: PlayerIndexEntry }) {
   );
 }
 
-function StatPills({ entry }: { entry: PlayerIndexEntry }) {
+function StatPills({
+  entry,
+  pitcher,
+}: {
+  entry: PlayerIndexEntry;
+  pitcher: boolean;
+}) {
   const pills: Array<{ label: string; value: string }> = [];
-  if (entry.warBat !== undefined && entry.warBat >= 1) {
-    pills.push({ label: "WAR", value: entry.warBat.toFixed(1) });
-  } else if (entry.warPit !== undefined && entry.warPit >= 1) {
-    pills.push({ label: "WAR", value: entry.warPit.toFixed(1) });
-  }
-  if (entry.opsPlus !== undefined) {
-    pills.push({ label: "OPS+", value: String(entry.opsPlus) });
-  } else if (entry.eraPlus !== undefined) {
-    pills.push({ label: "ERA+", value: String(entry.eraPlus) });
+  if (pitcher) {
+    if (entry.warPit !== undefined && entry.warPit >= 1) {
+      pills.push({ label: "WAR", value: entry.warPit.toFixed(1) });
+    }
+    if (entry.eraPlus !== undefined) {
+      pills.push({ label: "ERA+", value: String(entry.eraPlus) });
+    }
+  } else {
+    if (entry.avg) pills.push({ label: "AVG", value: entry.avg });
+    if (entry.homeRuns !== undefined && entry.homeRuns > 0) {
+      pills.push({ label: "HR", value: String(entry.homeRuns) });
+    }
+    if (entry.warBat !== undefined && entry.warBat >= 1 && pills.length < 2) {
+      pills.push({ label: "WAR", value: entry.warBat.toFixed(1) });
+    }
+    if (entry.opsPlus !== undefined && pills.length < 2) {
+      pills.push({ label: "OPS+", value: String(entry.opsPlus) });
+    }
   }
   if (pills.length === 0) return null;
   return (
     <div className="hidden flex-shrink-0 flex-col items-end gap-0.5 sm:flex">
-      {pills.map((p) => (
+      {pills.slice(0, 2).map((p) => (
         <span
           key={p.label}
           className="text-[11px] tabular-nums text-gray-500 dark:text-gray-400"
@@ -479,11 +524,20 @@ function parseNum(s: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+// Parse a baseball-style AVG string like ".293" or "0.293" into a number.
+// Returns -Infinity for missing values so the filter excludes them.
+function parseAvg(v: string | undefined): number {
+  if (!v) return -Infinity;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : -Infinity;
+}
+
 function pickStatSortKey(f: Filters): StatKey | null {
   if (f.minWarBat) return "warBat";
   if (f.minWarPit) return "warPit";
   if (f.minOpsPlus) return "opsPlus";
   if (f.minEraPlus) return "eraPlus";
+  if (f.minHr) return "homeRuns";
   return null;
 }
 

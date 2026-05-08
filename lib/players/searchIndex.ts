@@ -30,6 +30,14 @@ export type SearchEntry = {
   allStar?: number;
   goldGlove?: number;
   silverSlugger?: number;
+  /** Career hitting totals from MLB Stats API. AVG is a string (".293"). */
+  avg?: string;
+  hits?: number;
+  homeRuns?: number;
+  rbi?: number;
+  runs?: number;
+  stolenBases?: number;
+  atBats?: number;
 };
 
 const all = indexData as SearchEntry[];

@@ -22,6 +22,13 @@ export type PlayerIndexEntry = {
   allStar?: number;
   goldGlove?: number;
   silverSlugger?: number;
+  avg?: string;
+  hits?: number;
+  homeRuns?: number;
+  rbi?: number;
+  runs?: number;
+  stolenBases?: number;
+  atBats?: number;
 };
 
 // Module-level cache so multiple components share the same fetch.
