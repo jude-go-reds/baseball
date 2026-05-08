@@ -7,12 +7,15 @@ import {
 } from "../../types";
 import { primaryTeamLogoUrl } from "@/lib/teams/logos";
 
-const BG = "#f1d2c5";        // 1989 dusty pink back
-const PAPER = "#fbf1df";
-const FRAME_DARK = "#9b2718";
-const RED = "#dc4631";
-const ACCENT = "#1d3a87";
-const INK = "#0f0f0f";
+// 1989 Upper Deck back: white card stock, navy header band with the
+// player name and a faux-holographic UD hex, clean stat blocks below.
+
+const PAPER = "#fafaf7";
+const INK = "#0d1721";
+const NAVY = "#102a55";
+const GREEN = "#1f6f43";
+const GOLD = "#d4af37";
+const RULE = "#c9c5b6";
 
 export function Topps89Back({ player }: { player: Player }) {
   const sections: Array<{ title: string; tiles: StatTile[] }> = [];
@@ -28,7 +31,7 @@ export function Topps89Back({ player }: { player: Player }) {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        background: BG,
+        background: PAPER,
         padding: 18,
         boxSizing: "border-box",
         fontFamily: "sans-serif",
@@ -41,7 +44,7 @@ export function Topps89Back({ player }: { player: Player }) {
           flex: 1,
           flexDirection: "column",
           background: PAPER,
-          border: `4px solid ${FRAME_DARK}`,
+          border: `2px solid ${INK}`,
           overflow: "hidden",
         }}
       >
@@ -51,81 +54,70 @@ export function Topps89Back({ player }: { player: Player }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: ACCENT,
+            background: NAVY,
             color: PAPER,
             padding: "14px 22px",
-            borderBottom: `4px solid ${FRAME_DARK}`,
+            borderBottom: `4px solid ${GOLD}`,
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div
-              style={{
-                display: "flex",
-                fontSize: 36,
-                fontWeight: 900,
-                fontStyle: "italic",
-                lineHeight: 1,
-                textTransform: "uppercase",
-                letterSpacing: -0.5,
-              }}
-            >
-              {player.name}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                marginTop: 6,
-                fontSize: 14,
-                letterSpacing: 3,
-                textTransform: "uppercase",
-                fontWeight: 700,
-              }}
-            >
-              {[player.position, player.team, player.years].filter(Boolean).join("  •  ")}
-            </div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
             {logo && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} alt="" width={56} height={56} style={{ objectFit: "contain" }} />
+              <img
+                src={logo}
+                alt=""
+                width={56}
+                height={56}
+                style={{ marginRight: 14, objectFit: "contain" }}
+              />
             )}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: RED,
-                color: PAPER,
-                padding: "6px 14px",
-                border: `2px solid ${PAPER}`,
-                fontSize: 14,
-                letterSpacing: 4,
-                textTransform: "uppercase",
-                fontWeight: 900,
-              }}
-            >
-              #89
+            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: 34,
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  letterSpacing: -0.5,
+                  textTransform: "uppercase",
+                }}
+              >
+                {player.name}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  marginTop: 6,
+                  fontSize: 13,
+                  letterSpacing: 3,
+                  textTransform: "uppercase",
+                  color: GOLD,
+                  fontWeight: 700,
+                }}
+              >
+                {[player.position, player.team, player.years].filter(Boolean).join("  •  ")}
+              </div>
             </div>
           </div>
+          <HoloHex />
         </div>
 
-        {/* Awards */}
+        {/* Awards strip */}
         {awards.length > 0 && (
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               padding: "14px 22px",
-              background: BG,
-              borderBottom: `2px solid ${FRAME_DARK}`,
+              borderBottom: `1px solid ${RULE}`,
             }}
           >
             <div
               style={{
                 display: "flex",
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: 900,
-                color: ACCENT,
+                color: NAVY,
                 letterSpacing: 4,
                 textTransform: "uppercase",
                 marginBottom: 8,
@@ -151,7 +143,7 @@ export function Topps89Back({ player }: { player: Player }) {
                       display: "flex",
                       fontSize: 38,
                       fontWeight: 900,
-                      color: RED,
+                      color: GREEN,
                       lineHeight: 1,
                     }}
                   >
@@ -188,13 +180,14 @@ export function Topps89Back({ player }: { player: Player }) {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  background: ACCENT,
+                  background: NAVY,
                   color: PAPER,
                   padding: "6px 12px",
                   fontSize: 13,
                   fontWeight: 900,
                   letterSpacing: 4,
                   textTransform: "uppercase",
+                  borderBottom: `2px solid ${GOLD}`,
                 }}
               >
                 {s.title}
@@ -216,7 +209,7 @@ export function Topps89Back({ player }: { player: Player }) {
                         display: "flex",
                         fontSize: 12,
                         fontWeight: 800,
-                        color: ACCENT,
+                        color: NAVY,
                         letterSpacing: 2,
                         textTransform: "uppercase",
                       }}
@@ -244,7 +237,7 @@ export function Topps89Back({ player }: { player: Player }) {
         <div
           style={{
             display: "flex",
-            background: RED,
+            background: NAVY,
             color: PAPER,
             padding: "8px 18px",
             fontSize: 11,
@@ -255,6 +248,29 @@ export function Topps89Back({ player }: { player: Player }) {
           data: MLB Stats API + Baseball-Reference  {String.fromCharCode(0x2022)}  photos: MLB / Wikimedia
         </div>
       </div>
+    </div>
+  );
+}
+
+// Faux-holographic UD hex — gold/silver gradient with UD lettering.
+function HoloHex() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 70,
+        height: 70,
+        background: `linear-gradient(135deg, #f1d27a 0%, #cfcfcf 50%, #f1d27a 100%)`,
+        border: `2px solid #0d1721`,
+        color: "#0d1721",
+        fontSize: 22,
+        fontWeight: 900,
+        letterSpacing: 3,
+      }}
+    >
+      UD
     </div>
   );
 }

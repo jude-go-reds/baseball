@@ -32,7 +32,7 @@ export const STYLE_LABELS: Record<Style, string> = {
   minimalist: "Minimalist",
   topps54: "1954 Topps",
   topps61: "1961 Topps",
-  topps89: "1989 Topps",
+  topps89: "1989 Upper Deck",
   ginter: "Allen & Ginter",
 };
 

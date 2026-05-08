@@ -1,16 +1,21 @@
 import type { Player } from "../../types";
+import { primaryTeamLogoUrl } from "@/lib/teams/logos";
 
-// 1989 Topps: thick outer color frame with inner cream border, team-color
-// flag bar across the top (with white "TOPPS" pill), big photo, then a
-// chunky team color block at the bottom carrying a slanted name + position.
+// 1989 Upper Deck: clean white card stock, "UPPER DECK '89" wordmark in
+// a black bar with a faux-holographic UD hex up top, big photo, and a
+// green/gold team-color slab at the bottom carrying the player name.
+// (Slug stays `topps89` so existing URLs keep working.)
 
-const FRAME = "#dc4631";    // outer red frame
-const FRAME_DARK = "#9b2718";
-const CREAM = "#f7f1de";
-const INK = "#0f0f0f";
-const ACCENT = "#1d3a87";   // royal blue
+const PAPER = "#fafaf7";
+const INK = "#0d1721";
+const NAVY = "#102a55";
+const GREEN = "#1f6f43";
+const GOLD = "#d4af37";
+const SILVER = "#cfcfcf";
 
 export function Topps89Front({ player }: { player: Player }) {
+  const logo = primaryTeamLogoUrl(player.team);
+
   return (
     <div
       style={{
@@ -18,7 +23,7 @@ export function Topps89Front({ player }: { player: Player }) {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        background: FRAME,
+        background: PAPER,
         padding: 18,
         boxSizing: "border-box",
         fontFamily: "sans-serif",
@@ -29,64 +34,49 @@ export function Topps89Front({ player }: { player: Player }) {
           display: "flex",
           flex: 1,
           flexDirection: "column",
-          background: CREAM,
-          border: `4px solid ${FRAME_DARK}`,
-          position: "relative",
+          background: PAPER,
+          border: `2px solid ${INK}`,
           overflow: "hidden",
         }}
       >
-        {/* Top team-color bar with TOPPS pill on the left */}
+        {/* Top black bar with UPPER DECK wordmark + holo UD hex */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            background: ACCENT,
-            color: CREAM,
-            padding: "10px 16px",
-            borderBottom: `4px solid ${FRAME_DARK}`,
+            justifyContent: "space-between",
+            background: INK,
+            color: PAPER,
+            padding: "8px 16px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: CREAM,
-              color: ACCENT,
-              padding: "6px 14px",
-              borderRadius: 999,
-              fontSize: 16,
-              fontWeight: 900,
-              letterSpacing: 4,
-              marginRight: 16,
-              border: `2px solid ${FRAME_DARK}`,
-            }}
-          >
-            TOPPS
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                fontSize: 22,
+                fontWeight: 900,
+                letterSpacing: 6,
+                color: GOLD,
+                textTransform: "uppercase",
+              }}
+            >
+              Upper Deck
+            </div>
+            <div
+              style={{
+                display: "flex",
+                marginLeft: 10,
+                fontSize: 18,
+                fontWeight: 900,
+                fontStyle: "italic",
+                color: PAPER,
+              }}
+            >
+              {String.fromCharCode(0x2019)}89
+            </div>
           </div>
-          <div
-            style={{
-              display: "flex",
-              fontSize: 26,
-              fontWeight: 900,
-              letterSpacing: 4,
-              textTransform: "uppercase",
-              flex: 1,
-            }}
-          >
-            {player.team || "TEAM"}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              fontSize: 14,
-              letterSpacing: 4,
-              textTransform: "uppercase",
-              fontWeight: 800,
-            }}
-          >
-            {player.years}
-          </div>
+          <HoloBadge />
         </div>
 
         {/* Photo */}
@@ -94,7 +84,7 @@ export function Topps89Front({ player }: { player: Player }) {
           style={{
             display: "flex",
             flex: 1,
-            background: "#cfc6a8",
+            background: "#e8e6df",
             alignItems: "center",
             justifyContent: "center",
             overflow: "hidden",
@@ -102,22 +92,19 @@ export function Topps89Front({ player }: { player: Player }) {
           }}
         >
           {player.photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={player.photoUrl}
               alt={player.name}
-              width={744}
-              height={760}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
+              width={760}
+              height={780}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           ) : (
             <div
               style={{
                 display: "flex",
-                color: ACCENT,
+                color: NAVY,
                 fontSize: 28,
                 letterSpacing: 6,
                 fontWeight: 800,
@@ -127,56 +114,106 @@ export function Topps89Front({ player }: { player: Player }) {
             </div>
           )}
 
-          {/* Position swatch — sliced into bottom-right of photo */}
-          <div
-            style={{
-              position: "absolute",
-              right: 0,
-              bottom: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: FRAME,
-              color: CREAM,
-              padding: "10px 22px 10px 26px",
-              fontSize: 22,
-              fontWeight: 900,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-              borderTop: `4px solid ${FRAME_DARK}`,
-              borderLeft: `4px solid ${FRAME_DARK}`,
-            }}
-          >
-            {player.position || "—"}
-          </div>
+          {/* Team logo cap, bottom-left */}
+          {logo && (
+            <div
+              style={{
+                position: "absolute",
+                left: 14,
+                bottom: 14,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 76,
+                height: 76,
+                background: PAPER,
+                border: `2px solid ${INK}`,
+                borderRadius: 999,
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={logo}
+                alt=""
+                width={56}
+                height={56}
+                style={{ objectFit: "contain" }}
+              />
+            </div>
+          )}
         </div>
 
-        {/* Bottom team-color name slab */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            background: ACCENT,
-            color: CREAM,
-            padding: "20px 24px",
-            borderTop: `4px solid ${FRAME_DARK}`,
-          }}
-        >
+        {/* Bottom team-color slab */}
+        <div style={{ display: "flex", flexDirection: "column" }}>
           <div
             style={{
               display: "flex",
-              fontSize: 60,
-              fontWeight: 900,
-              fontStyle: "italic",
-              lineHeight: 0.95,
-              letterSpacing: -1,
-              textTransform: "uppercase",
+              background: GREEN,
+              color: PAPER,
+              padding: "20px 24px 16px",
+              borderTop: `4px solid ${GOLD}`,
             }}
           >
-            {player.name}
+            <div
+              style={{
+                display: "flex",
+                fontSize: 56,
+                fontWeight: 900,
+                lineHeight: 0.95,
+                letterSpacing: -1,
+                textTransform: "uppercase",
+                flex: 1,
+              }}
+            >
+              {player.name}
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              background: PAPER,
+              color: INK,
+              borderTop: `2px solid ${INK}`,
+              padding: "8px 16px",
+              fontSize: 14,
+              letterSpacing: 4,
+              textTransform: "uppercase",
+              fontWeight: 800,
+            }}
+          >
+            <div style={{ display: "flex", color: GREEN }}>{player.position || "—"}</div>
+            <div style={{ display: "flex", margin: "0 10px", color: SILVER }}>
+              {String.fromCharCode(0x2022)}
+            </div>
+            <div style={{ display: "flex", flex: 1 }}>{player.team}</div>
+            <div style={{ display: "flex", color: NAVY }}>{player.years}</div>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Stylized "holographic" UD hex badge — gold/silver gradient pill with UD.
+function HoloBadge() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 52,
+        height: 32,
+        background: `linear-gradient(135deg, #f1d27a 0%, #cfcfcf 50%, #f1d27a 100%)`,
+        border: `1px solid #0d1721`,
+        color: "#0d1721",
+        fontSize: 14,
+        fontWeight: 900,
+        letterSpacing: 2,
+      }}
+    >
+      UD
     </div>
   );
 }
