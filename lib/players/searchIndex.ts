@@ -8,6 +8,7 @@ export type SearchEntry = {
   id: string;
   name: string;
   team: string;
+  teams: string[];
   position: string;
   years: string;
   hofYear?: number;
@@ -26,16 +27,19 @@ export function getHallOfFamers(): SearchEntry[] {
 }
 
 export function getByTeam(team: string): SearchEntry[] {
+  const t = team.toUpperCase();
   return all
-    .filter((e) => e.team.toUpperCase() === team.toUpperCase())
+    .filter((e) => e.teams.some((x) => x.toUpperCase() === t))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function getTeams(): Array<{ team: string; count: number }> {
   const counts = new Map<string, number>();
   for (const e of all) {
-    if (!e.team) continue;
-    counts.set(e.team, (counts.get(e.team) ?? 0) + 1);
+    for (const t of e.teams) {
+      if (!t) continue;
+      counts.set(t, (counts.get(t) ?? 0) + 1);
+    }
   }
   return Array.from(counts, ([team, count]) => ({ team, count })).sort(
     (a, b) => b.count - a.count,

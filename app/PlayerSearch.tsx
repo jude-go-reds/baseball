@@ -8,6 +8,7 @@ type SearchEntry = {
   id: string;
   name: string;
   team: string;
+  teams: string[];
   position: string;
   years: string;
 };
@@ -33,7 +34,7 @@ export function PlayerSearch() {
     return new Fuse(entries, {
       keys: [
         { name: "name", weight: 1 },
-        { name: "team", weight: 0.3 },
+        { name: "teams", weight: 0.3 },
       ],
       threshold: 0.3,
       ignoreLocation: true,

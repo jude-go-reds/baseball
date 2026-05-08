@@ -33,7 +33,7 @@ export function FilteredPlayerList({
 
   const teams = useMemo(() => {
     const set = new Set<string>();
-    for (const e of entries) if (e.team) set.add(e.team);
+    for (const e of entries) for (const t of e.teams) if (t) set.add(t);
     return Array.from(set).sort();
   }, [entries]);
 
@@ -42,7 +42,7 @@ export function FilteredPlayerList({
     return entries.filter((e) => {
       if (q && !e.name.toLowerCase().includes(q)) return false;
       if (position && e.position !== position) return false;
-      if (team && e.team !== team) return false;
+      if (team && !e.teams.includes(team)) return false;
       if (hofOnly && e.hofYear === undefined) return false;
       return true;
     });

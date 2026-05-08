@@ -15,7 +15,10 @@ type ApiPlayer = {
 export type SearchEntry = {
   id: string;
   name: string;
+  /** Most recent team — primary display label. */
   team: string;
+  /** Every team the player played for, in chronological order. */
+  teams: string[];
   position: string;
   years: string;
   /** Hall of Fame induction year, present iff the player is in the HoF. */
@@ -50,10 +53,18 @@ async function buildHofMap(): Promise<Map<number, number>> {
   return map;
 }
 
+function shortLabel(raw: string): string {
+  if (raw.length <= 6) return raw;
+  // Initialism for long historical / Negro League team names.
+  return raw.split(" ").map((w) => w[0] ?? "").join("").slice(0, 4) || raw.slice(0, 4);
+}
+
 async function buildTeamMap(): Promise<Map<number, string>> {
   const json = await fetchJson<{ teams: ApiTeam[] }>(`/teams?sportId=1&activeStatus=Both`);
   const map = new Map<number, string>();
-  for (const t of json.teams) map.set(t.id, t.abbreviation ?? t.name);
+  for (const t of json.teams) {
+    map.set(t.id, t.abbreviation ?? shortLabel(t.name));
+  }
   return map;
 }
 
@@ -132,28 +143,37 @@ async function main() {
     CONCURRENCY,
   );
 
-  // Merge & dedupe. When a player appears in multiple seasons, prefer the
-  // entry with the most useful metadata (latest last_played wins, then most
-  // recent currentTeam).
-  const byId = new Map<number, ApiPlayer>();
+  // Merge per player across seasons: keep the entry with the latest
+  // lastPlayedDate as the canonical metadata, but accumulate every team
+  // the player appeared for so the team filter can match prior teams
+  // (e.g. Greg Maddux on the Cubs years before his Braves run).
+  const byId = new Map<number, { player: ApiPlayer; teamIds: number[] }>();
   for (const list of all) {
     for (const p of list) {
-      const existing = byId.get(p.id);
-      if (!existing) {
-        byId.set(p.id, p);
-        continue;
+      let agg = byId.get(p.id);
+      if (!agg) {
+        agg = { player: p, teamIds: [] };
+        byId.set(p.id, agg);
+      } else {
+        const a = p.lastPlayedDate ?? "";
+        const b = agg.player.lastPlayedDate ?? "";
+        if (a > b) agg.player = p;
       }
-      const a = p.lastPlayedDate ?? "";
-      const b = existing.lastPlayedDate ?? "";
-      if (a > b) byId.set(p.id, p);
+      const tid = p.currentTeam?.id;
+      if (tid && !agg.teamIds.includes(tid)) agg.teamIds.push(tid);
     }
   }
 
-  const entries: SearchEntry[] = Array.from(byId.values()).map((p) => {
+  const entries: SearchEntry[] = Array.from(byId.values()).map(({ player: p, teamIds }) => {
+    const teamList = teamIds
+      .map((id) => teams.get(id) ?? "")
+      .filter((t) => t.length > 0);
+    const primary = teamList[teamList.length - 1] || teamLabel(p, teams);
     const entry: SearchEntry = {
       id: String(p.id),
       name: p.fullName,
-      team: teamLabel(p, teams),
+      team: primary,
+      teams: teamList,
       position: p.primaryPosition?.abbreviation ?? "",
       years: yearsLabel(p),
     };
