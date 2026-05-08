@@ -52,13 +52,13 @@ export default function BrowseHub() {
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">By team</h2>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-          {teams.map(({ team, count }) => {
+          {teams.map(({ team }) => {
             const logo = teamLogoUrl(team);
             return (
               <Link
                 key={team}
                 href={`/browse/team/${team}`}
-                className="flex flex-col items-center gap-1 rounded-md border border-gray-300 px-3 py-3 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900"
+                className="flex flex-col items-center justify-center rounded-md border border-gray-300 px-3 py-3 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900"
                 title={team}
               >
                 {logo ? (
@@ -74,9 +74,6 @@ export default function BrowseHub() {
                     {team}
                   </div>
                 )}
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {count}
-                </div>
               </Link>
             );
           })}
