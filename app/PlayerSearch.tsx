@@ -13,13 +13,15 @@ type SearchEntry = {
   years: string;
 };
 
-const MAX_RESULTS = 8;
+const PAGE_SIZE = 8;
+const MAX_MATCHES = 200;
 
 export function PlayerSearch() {
   const router = useRouter();
   const [entries, setEntries] = useState<SearchEntry[] | null>(null);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [page, setPage] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -41,10 +43,17 @@ export function PlayerSearch() {
     });
   }, [entries]);
 
-  const results = useMemo(() => {
+  const allResults = useMemo(() => {
     if (!fuse || !query.trim()) return [];
-    return fuse.search(query.trim(), { limit: MAX_RESULTS }).map((r) => r.item);
+    return fuse
+      .search(query.trim(), { limit: MAX_MATCHES })
+      .map((r) => r.item);
   }, [fuse, query]);
+
+  const totalPages = Math.max(1, Math.ceil(allResults.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages - 1);
+  const pageStart = currentPage * PAGE_SIZE;
+  const results = allResults.slice(pageStart, pageStart + PAGE_SIZE);
 
   function go(entry: SearchEntry) {
     router.push(`/card/${entry.id}`);
@@ -65,6 +74,7 @@ export function PlayerSearch() {
         onChange={(e) => {
           setQuery(e.target.value);
           setActiveIndex(0);
+          setPage(0);
         }}
         onKeyDown={(e) => {
           if (results.length === 0) return;
@@ -77,6 +87,22 @@ export function PlayerSearch() {
           } else if (e.key === "Enter") {
             e.preventDefault();
             go(results[activeIndex]);
+          } else if (
+            (e.key === "PageDown" ||
+              (e.key === "ArrowRight" && e.altKey)) &&
+            currentPage < totalPages - 1
+          ) {
+            e.preventDefault();
+            setPage(currentPage + 1);
+            setActiveIndex(0);
+          } else if (
+            (e.key === "PageUp" ||
+              (e.key === "ArrowLeft" && e.altKey)) &&
+            currentPage > 0
+          ) {
+            e.preventDefault();
+            setPage(currentPage - 1);
+            setActiveIndex(0);
           }
         }}
         disabled={entries === null}
@@ -84,32 +110,73 @@ export function PlayerSearch() {
       />
 
       {results.length > 0 && (
-        <ul className="mt-2 overflow-hidden rounded-md border border-gray-200 bg-white shadow-md dark:border-gray-800 dark:bg-gray-900">
-          {results.map((entry, i) => (
-            <li key={entry.id}>
-              <button
-                type="button"
-                onClick={() => go(entry)}
-                onMouseEnter={() => setActiveIndex(i)}
-                className={`flex w-full items-baseline justify-between gap-3 px-4 py-2.5 text-left ${
-                  i === activeIndex
-                    ? "bg-gray-100 dark:bg-gray-800"
-                    : "hover:bg-gray-50 dark:hover:bg-gray-800"
-                }`}
-              >
-                <span className="font-medium">{entry.name}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {[entry.team, entry.position, entry.years]
-                    .filter(Boolean)
-                    .join(" · ")}
+        <div className="mt-2 overflow-hidden rounded-md border border-gray-200 bg-white shadow-md dark:border-gray-800 dark:bg-gray-900">
+          <ul>
+            {results.map((entry, i) => (
+              <li key={entry.id}>
+                <button
+                  type="button"
+                  onClick={() => go(entry)}
+                  onMouseEnter={() => setActiveIndex(i)}
+                  className={`flex w-full items-baseline justify-between gap-3 px-4 py-2.5 text-left ${
+                    i === activeIndex
+                      ? "bg-gray-100 dark:bg-gray-800"
+                      : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <span className="font-medium">{entry.name}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {[entry.team, entry.position, entry.years]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between gap-3 border-t border-gray-200 bg-gray-50 px-4 py-2 text-xs text-gray-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400">
+              <span>
+                {pageStart + 1}
+                {String.fromCharCode(0x2013)}
+                {pageStart + results.length} of {allResults.length}
+                {allResults.length === MAX_MATCHES ? "+" : ""}
+              </span>
+              <span className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPage(currentPage - 1);
+                    setActiveIndex(0);
+                    inputRef.current?.focus();
+                  }}
+                  disabled={currentPage === 0}
+                  className="rounded border border-gray-300 px-2 py-1 hover:bg-white disabled:opacity-40 disabled:hover:bg-transparent dark:border-gray-700 dark:hover:bg-gray-900"
+                >
+                  Prev
+                </button>
+                <span>
+                  Page {currentPage + 1} / {totalPages}
                 </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPage(currentPage + 1);
+                    setActiveIndex(0);
+                    inputRef.current?.focus();
+                  }}
+                  disabled={currentPage >= totalPages - 1}
+                  className="rounded border border-gray-300 px-2 py-1 hover:bg-white disabled:opacity-40 disabled:hover:bg-transparent dark:border-gray-700 dark:hover:bg-gray-900"
+                >
+                  Next
+                </button>
+              </span>
+            </div>
+          )}
+        </div>
       )}
 
-      {query.trim() && fuse && results.length === 0 && (
+      {query.trim() && fuse && allResults.length === 0 && (
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">No matches.</p>
       )}
     </div>

@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Show } from "@clerk/nextjs";
 import { LibraryList } from "./LibraryList";
+import { SignedOutPrompt } from "./SignedOutPrompt";
 
 export default function LibraryPage() {
   return (
@@ -15,12 +17,16 @@ export default function LibraryPage() {
       <header className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold">Library</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Players you&apos;ve favorited. Stored in this browser only — no account
-          needed, no syncing across devices.
+          Players and teams you&apos;ve favorited. Synced to your account.
         </p>
       </header>
 
-      <LibraryList />
+      <Show when="signed-in">
+        <LibraryList />
+      </Show>
+      <Show when="signed-out">
+        <SignedOutPrompt />
+      </Show>
     </main>
   );
 }
