@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import {
   getFavorites,
   getFavoritesServerSnapshot,
   subscribeFavorites,
   toggleFavorite,
 } from "@/lib/favorites";
+import { useIsMounted } from "@/lib/hooks/useIsMounted";
 
 export function FavoriteButton({ id }: { id: string }) {
   const favs = useSyncExternalStore(
@@ -16,9 +17,7 @@ export function FavoriteButton({ id }: { id: string }) {
   );
   // Defer the visual state until after hydration so we never show the
   // wrong heart for a frame to users who already favorited this player.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
+  const mounted = useIsMounted();
   const fav = mounted && favs.includes(id);
 
   return (

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useIsMounted } from "@/lib/hooks/useIsMounted";
 import {
   getFavorites,
   getFavoritesServerSnapshot,
@@ -40,8 +41,7 @@ export function LibraryList() {
   // Defer the first paint until localStorage has been read on the client,
   // so SSR/first-render don't briefly show the empty-state to users who
   // do have favorites.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useIsMounted();
 
   useEffect(() => {
     if (favIds.length === 0) return;

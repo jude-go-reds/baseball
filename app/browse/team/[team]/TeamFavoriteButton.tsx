@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import {
   getFavoriteTeams,
   getFavoriteTeamsServerSnapshot,
   subscribeFavoriteTeams,
   toggleFavoriteTeam,
 } from "@/lib/favorites";
+import { useIsMounted } from "@/lib/hooks/useIsMounted";
 
 export function TeamFavoriteButton({ team }: { team: string }) {
   const favs = useSyncExternalStore(
@@ -14,9 +15,7 @@ export function TeamFavoriteButton({ team }: { team: string }) {
     getFavoriteTeams,
     getFavoriteTeamsServerSnapshot,
   );
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
+  const mounted = useIsMounted();
   const fav = mounted && favs.includes(team);
 
   return (
