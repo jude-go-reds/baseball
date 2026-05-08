@@ -12,6 +12,8 @@ import { Topps61Front } from "./topps61/front";
 import { Topps61Back } from "./topps61/back";
 import { Topps89Front } from "./topps89/front";
 import { Topps89Back } from "./topps89/back";
+import { GinterFront } from "./ginter/front";
+import { GinterBack } from "./ginter/back";
 
 export const STYLES = [
   "modern",
@@ -20,6 +22,7 @@ export const STYLES = [
   "topps54",
   "topps61",
   "topps89",
+  "ginter",
 ] as const;
 export type Style = (typeof STYLES)[number];
 
@@ -30,6 +33,7 @@ export const STYLE_LABELS: Record<Style, string> = {
   topps54: "1954 Topps",
   topps61: "1961 Topps",
   topps89: "1989 Topps",
+  ginter: "Allen & Ginter",
 };
 
 export const DEFAULT_STYLE: Style = "modern";
@@ -48,6 +52,7 @@ const TEMPLATES: Record<Style, { front: Renderer; back: Renderer }> = {
   topps54: { front: Topps54Front, back: Topps54Back },
   topps61: { front: Topps61Front, back: Topps61Back },
   topps89: { front: Topps89Front, back: Topps89Back },
+  ginter: { front: GinterFront, back: GinterBack },
 };
 
 export function renderCard(
