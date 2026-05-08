@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider, Show, UserButton } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/next";
 import { SignedOutButtons } from "./AuthHeader";
 import { FavoritesSyncProvider } from "./FavoritesSyncProvider";
 import "./globals.css";
@@ -46,6 +47,7 @@ export default function RootLayout({
             {children}
           </FavoritesSyncProvider>
         </ClerkProvider>
+        <Analytics />
       </body>
     </html>
   );
