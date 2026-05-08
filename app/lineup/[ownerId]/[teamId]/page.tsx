@@ -27,7 +27,7 @@ export default async function LineupPage({
   const ownerName = user.username ?? user.firstName ?? "a fan";
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4 p-4 sm:p-8">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 p-2 sm:p-6">
       <div className="flex items-center gap-3 text-sm">
         <Link href="/" className="text-blue-600 hover:underline dark:text-blue-400">
           Home
