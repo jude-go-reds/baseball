@@ -87,7 +87,7 @@ export function Topps89Back({ player }: { player: Player }) {
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             {logo && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} alt="" width={56} height={56} />
+              <img src={logo} alt="" width={56} height={56} style={{ objectFit: "contain" }} />
             )}
             <div
               style={{

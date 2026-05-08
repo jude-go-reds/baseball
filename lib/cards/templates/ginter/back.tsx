@@ -69,7 +69,7 @@ export function GinterBack({ player }: { player: Player }) {
           >
             {logo && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} alt="" width={64} height={64} style={{ marginBottom: 4 }} />
+              <img src={logo} alt="" width={64} height={64} style={{ marginBottom: 4, objectFit: "contain" }} />
             )}
             <div
               style={{

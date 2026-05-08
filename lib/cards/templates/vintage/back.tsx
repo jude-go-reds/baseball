@@ -67,7 +67,7 @@ export function VintageBack({ player }: { player: Player }) {
           </div>
           {logo && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logo} alt="" width={64} height={64} style={{ marginLeft: 16 }} />
+            <img src={logo} alt="" width={64} height={64} style={{ marginLeft: 16, objectFit: "contain" }} />
           )}
         </div>
 
