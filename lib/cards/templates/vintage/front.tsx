@@ -3,7 +3,6 @@ import type { Player } from "../../types";
 const SEPIA_BG = "#e9d9b3";
 const SEPIA_DARK = "#b48a45";
 const PAPER = "#f6ecd0";
-const INK = "#2b1d10";
 const BAND = "#a32420"; // muted Topps red
 
 export function VintageFront({ player }: { player: Player }) {
