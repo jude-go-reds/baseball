@@ -13,6 +13,14 @@ export type SearchEntry = {
   position: string;
   years: string;
   hofYear?: number;
+  /** Career batting WAR (Baseball-Reference). */
+  warBat?: number;
+  /** Career pitching WAR (Baseball-Reference). */
+  warPit?: number;
+  /** Career OPS+ (career-weighted). */
+  opsPlus?: number;
+  /** Career ERA+ (career-weighted). */
+  eraPlus?: number;
 };
 
 const all = indexData as SearchEntry[];

@@ -10,6 +10,10 @@ export type PlayerIndexEntry = {
   position: string;
   years: string;
   hofYear?: number;
+  warBat?: number;
+  warPit?: number;
+  opsPlus?: number;
+  eraPlus?: number;
 };
 
 // Module-level cache so multiple components share the same fetch.

@@ -1,4 +1,4 @@
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 type ApiTeam = { id: number; name: string; abbreviation?: string };
@@ -23,6 +23,18 @@ export type SearchEntry = {
   years: string;
   /** Hall of Fame induction year, present iff the player is in the HoF. */
   hofYear?: number;
+  /** Career stats merged from data/historical/players.json. */
+  warBat?: number;
+  warPit?: number;
+  opsPlus?: number;
+  eraPlus?: number;
+};
+
+type HistoricalEntry = {
+  warBat: number | null;
+  warPit: number | null;
+  opsPlus: number | null;
+  eraPlus: number | null;
 };
 
 type ApiAward = { season?: string; player?: { id?: number } };
@@ -164,6 +176,22 @@ async function main() {
     }
   }
 
+  // Merge in historical career stats (WAR / OPS+ / ERA+) so the client
+  // search index can filter by them.
+  let historical: Record<string, HistoricalEntry> = {};
+  try {
+    const path = join(process.cwd(), "data", "historical", "players.json");
+    historical = JSON.parse(await readFile(path, "utf8")) as Record<
+      string,
+      HistoricalEntry
+    >;
+    console.log(`Loaded historical stats for ${Object.keys(historical).length} players`);
+  } catch (err) {
+    console.warn(
+      `  ! historical stats not loaded: ${(err as Error).message} (continuing without)`,
+    );
+  }
+
   const entries: SearchEntry[] = Array.from(byId.values()).map(({ player: p, teamIds }) => {
     const teamList = teamIds
       .map((id) => teams.get(id) ?? "")
@@ -179,6 +207,13 @@ async function main() {
     };
     const hofYear = hof.get(p.id);
     if (hofYear !== undefined) entry.hofYear = hofYear;
+    const h = historical[String(p.id)];
+    if (h) {
+      if (h.warBat !== null) entry.warBat = h.warBat;
+      if (h.warPit !== null) entry.warPit = h.warPit;
+      if (h.opsPlus !== null) entry.opsPlus = h.opsPlus;
+      if (h.eraPlus !== null) entry.eraPlus = h.eraPlus;
+    }
     return entry;
   });
 
