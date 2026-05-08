@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PlayerSearch } from "./PlayerSearch";
+import { InstallButton } from "./InstallButton";
 
 export default function Home() {
   return (
@@ -32,6 +33,8 @@ export default function Home() {
           Collections &rarr;
         </Link>
       </div>
+
+      <InstallButton />
     </main>
   );
 }
