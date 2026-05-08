@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { Show } from "@clerk/nextjs";
 import { PlayerSearch } from "./PlayerSearch";
 import { InstallButton } from "./InstallButton";
+
+const NAV_BUTTON =
+  "rounded-md border border-gray-300 px-5 py-2.5 text-base font-medium hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900";
 
 export default function Home() {
   return (
@@ -13,31 +17,21 @@ export default function Home() {
 
       <PlayerSearch />
 
-      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
-        <Link
-          href="/browse"
-          className="text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
-        >
-          Browse galleries &rarr;
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <Link href="/browse" className={NAV_BUTTON}>
+          Browse galleries
         </Link>
-        <Link
-          href="/library"
-          className="text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
-        >
-          Library &rarr;
+        <Link href="/library" className={NAV_BUTTON}>
+          Library
         </Link>
-        <Link
-          href="/collections"
-          className="text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
-        >
-          Collections &rarr;
+        <Link href="/collections" className={NAV_BUTTON}>
+          Collections
         </Link>
-        <Link
-          href="/lineups"
-          className="text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
-        >
-          Lineups &rarr;
-        </Link>
+        <Show when="signed-in">
+          <Link href="/lineups" className={NAV_BUTTON}>
+            Lineups
+          </Link>
+        </Show>
       </div>
 
       <InstallButton />
