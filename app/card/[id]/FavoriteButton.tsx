@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   getFavorites,
   getFavoritesServerSnapshot,
@@ -14,13 +14,19 @@ export function FavoriteButton({ id }: { id: string }) {
     getFavorites,
     getFavoritesServerSnapshot,
   );
-  const fav = favs.includes(id);
+  // Defer the visual state until after hydration so we never show the
+  // wrong heart for a frame to users who already favorited this player.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const fav = mounted && favs.includes(id);
 
   return (
     <button
       type="button"
       onClick={() => toggleFavorite(id)}
       aria-pressed={fav}
+      style={mounted ? undefined : { visibility: "hidden" }}
       className={`rounded-md border px-4 py-2 text-sm transition ${
         fav
           ? "border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-200"

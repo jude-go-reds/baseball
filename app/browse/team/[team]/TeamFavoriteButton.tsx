@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   getFavoriteTeams,
   getFavoriteTeamsServerSnapshot,
@@ -14,13 +14,17 @@ export function TeamFavoriteButton({ team }: { team: string }) {
     getFavoriteTeams,
     getFavoriteTeamsServerSnapshot,
   );
-  const fav = favs.includes(team);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const fav = mounted && favs.includes(team);
 
   return (
     <button
       type="button"
       onClick={() => toggleFavoriteTeam(team)}
       aria-pressed={fav}
+      style={mounted ? undefined : { visibility: "hidden" }}
       className={`self-start rounded-md border px-3 py-1.5 text-xs transition ${
         fav
           ? "border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-200"

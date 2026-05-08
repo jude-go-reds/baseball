@@ -37,6 +37,11 @@ export function LibraryList() {
 
   const [index, setIndex] = useState<SearchEntry[] | null>(null);
   const [fetchFailed, setFetchFailed] = useState(false);
+  // Defer the first paint until localStorage has been read on the client,
+  // so SSR/first-render don't briefly show the empty-state to users who
+  // do have favorites.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (favIds.length === 0) return;
@@ -65,6 +70,10 @@ export function LibraryList() {
       .map((id) => byId.get(id))
       .filter((e): e is SearchEntry => Boolean(e));
   }, [index, favIds]);
+
+  if (!mounted) {
+    return <Skeleton />;
+  }
 
   if (favIds.length === 0 && favTeams.length === 0) {
     return (
@@ -176,6 +185,35 @@ export function LibraryList() {
             ))}
           </ul>
         )}
+      </section>
+    </div>
+  );
+}
+
+function Skeleton() {
+  return (
+    <div className="flex flex-col gap-8" aria-hidden>
+      <section className="flex flex-col gap-3">
+        <div className="h-6 w-32 rounded bg-gray-100 dark:bg-gray-800" />
+        <div className="flex flex-wrap gap-2">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="h-8 w-20 rounded-md bg-gray-100 dark:bg-gray-800"
+            />
+          ))}
+        </div>
+      </section>
+      <section className="flex flex-col gap-3">
+        <div className="h-6 w-32 rounded bg-gray-100 dark:bg-gray-800" />
+        <div className="flex flex-col gap-2">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-10 rounded-md bg-gray-100 dark:bg-gray-800"
+            />
+          ))}
+        </div>
       </section>
     </div>
   );
