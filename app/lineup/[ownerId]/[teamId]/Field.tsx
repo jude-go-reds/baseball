@@ -48,45 +48,7 @@ export function Field({ lineup, byId, onPick, onClear }: Props) {
         className="relative w-full overflow-hidden rounded-xl shadow-md"
         style={{ aspectRatio: "5 / 4" }}
       >
-        {/* Outfield grass */}
-        <div className="absolute inset-0 bg-green-700" />
-        {/* Warning track ring */}
-        <div className="absolute inset-[3%] rounded-[40%/30%] border-[8px] border-amber-800/60" />
-        {/* Outfield grass inside the warning track */}
-        <div className="absolute inset-[4%] rounded-[40%/30%] bg-green-600" />
-        {/* Infield dirt — square rotated 45° */}
-        <div
-          className="absolute bg-amber-700"
-          style={{
-            left: "50%",
-            top: "65%",
-            width: "46%",
-            aspectRatio: "1 / 1",
-            transform: "translate(-50%, -50%) rotate(45deg)",
-          }}
-        />
-        {/* Infield grass — inner diamond */}
-        <div
-          className="absolute bg-green-600"
-          style={{
-            left: "50%",
-            top: "65%",
-            width: "30%",
-            aspectRatio: "1 / 1",
-            transform: "translate(-50%, -50%) rotate(45deg)",
-          }}
-        />
-        {/* Pitcher's mound */}
-        <div
-          className="absolute rounded-full bg-amber-700"
-          style={{
-            left: "50%",
-            top: "60%",
-            width: "8%",
-            aspectRatio: "1 / 1",
-            transform: "translate(-50%, -50%)",
-          }}
-        />
+        <FieldBackground />
 
         {/* Player slot buttons */}
         {FIELD_SLOTS.map((slot) => {
@@ -126,6 +88,85 @@ export function Field({ lineup, byId, onPick, onClear }: Props) {
         })}
       </div>
     </div>
+  );
+}
+
+// Stylized top-down baseball field. viewBox is 1000x800 (5:4) to match
+// the parent container's aspect ratio. Geometry:
+//   Home plate:    (500, 700)
+//   1B / 2B / 3B:  (670, 530) / (500, 360) / (330, 530)
+//   Pitcher mound: (500, 540), radius 38
+//   Foul lines run from home at 45° to (76, 276) / (924, 276)
+//   Infield arc:   r=362 centered at home plate
+function FieldBackground() {
+  return (
+    <svg
+      viewBox="0 0 1000 800"
+      preserveAspectRatio="none"
+      className="absolute inset-0 h-full w-full"
+      aria-hidden="true"
+    >
+      {/* Outfield grass — base color */}
+      <rect width="1000" height="800" fill="#1f7a3a" />
+
+      {/* Subtle mowing stripes */}
+      <g opacity="0.08">
+        <rect y="0" width="1000" height="80" fill="#000" />
+        <rect y="160" width="1000" height="80" fill="#000" />
+        <rect y="320" width="1000" height="80" fill="#000" />
+        <rect y="480" width="1000" height="80" fill="#000" />
+        <rect y="640" width="1000" height="80" fill="#000" />
+      </g>
+
+      {/* Foul-territory shading (slightly muted) */}
+      <path d="M 500 700 L 76 276 L 0 276 L 0 800 L 500 800 Z" fill="#0f4a26" opacity="0.55" />
+      <path d="M 500 700 L 924 276 L 1000 276 L 1000 800 L 500 800 Z" fill="#0f4a26" opacity="0.55" />
+
+      {/* Warning track — brown band along the back wall */}
+      <path
+        d="M 30 320 Q 500 -150 970 320 L 970 270 Q 500 -210 30 270 Z"
+        fill="#8a5a2e"
+      />
+      {/* Outfield wall (yellow-cap line) */}
+      <path
+        d="M 30 270 Q 500 -210 970 270"
+        fill="none"
+        stroke="#fbbf24"
+        strokeWidth="4"
+      />
+
+      {/* Skinned infield — dirt fan from home to the infield arc */}
+      <path
+        d="M 500 700 L 244 444 A 362 362 0 0 1 756 444 L 500 700 Z"
+        fill="#a16225"
+      />
+
+      {/* Infield grass diamond */}
+      <polygon points="500,660 640,520 500,380 360,520" fill="#1f7a3a" />
+
+      {/* Foul lines */}
+      <line x1="500" y1="700" x2="76" y2="276" stroke="#fbfbf6" strokeWidth="3" />
+      <line x1="500" y1="700" x2="924" y2="276" stroke="#fbfbf6" strokeWidth="3" />
+
+      {/* Bases (rotated white squares) */}
+      <g fill="#fbfbf6" stroke="#7a4a25" strokeWidth="1.5">
+        <rect x="-10" y="-10" width="20" height="20" transform="translate(670 530) rotate(45)" />
+        <rect x="-10" y="-10" width="20" height="20" transform="translate(500 360) rotate(45)" />
+        <rect x="-10" y="-10" width="20" height="20" transform="translate(330 530) rotate(45)" />
+      </g>
+
+      {/* Home plate pentagon */}
+      <polygon
+        points="486,690 514,690 514,705 500,720 486,705"
+        fill="#fbfbf6"
+        stroke="#7a4a25"
+        strokeWidth="1.5"
+      />
+
+      {/* Pitcher's mound + rubber */}
+      <circle cx="500" cy="540" r="38" fill="#a16225" />
+      <rect x="488" y="538" width="24" height="5" fill="#fbfbf6" />
+    </svg>
   );
 }
 
