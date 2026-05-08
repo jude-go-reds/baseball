@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getByTeam } from "@/lib/players/searchIndex";
 import { FilteredPlayerList } from "../../FilteredPlayerList";
+import { TeamFavoriteButton } from "./TeamFavoriteButton";
 
 export default async function TeamPage({
   params,
@@ -26,11 +27,12 @@ export default async function TeamPage({
         <span className="font-medium">{team.toUpperCase()}</span>
       </div>
 
-      <header className="flex flex-col gap-1">
+      <header className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold">{team.toUpperCase()}</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           {players.length} players associated with this team in the index.
         </p>
+        <TeamFavoriteButton team={team.toUpperCase()} />
       </header>
 
       <FilteredPlayerList entries={players} hideTeamFilter />
