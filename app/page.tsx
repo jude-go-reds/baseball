@@ -32,6 +32,12 @@ export default function Home() {
         >
           Collections &rarr;
         </Link>
+        <Link
+          href="/lineups"
+          className="text-blue-600 underline-offset-2 hover:underline dark:text-blue-400"
+        >
+          Lineups &rarr;
+        </Link>
       </div>
 
       <InstallButton />
