@@ -38,6 +38,15 @@ export type SearchEntry = {
   runs?: number;
   stolenBases?: number;
   atBats?: number;
+  /** Career pitching totals from MLB Stats API. ERA / WHIP / IP are strings. */
+  wins?: number;
+  losses?: number;
+  saves?: number;
+  strikeOuts?: number;
+  era?: string;
+  whip?: string;
+  inningsPitched?: string;
+  gamesStarted?: number;
 };
 
 const all = indexData as SearchEntry[];

@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { clerkClient } from "@clerk/nextjs/server";
 import { getAll } from "@/lib/players/searchIndex";
 import type { Collection } from "@/app/api/collections/route";
+import { readLineups } from "@/app/api/lineups/route";
+import { SLOTS } from "@/lib/lineups/positions";
 
 type SearchEntry = {
   id: string;
@@ -39,6 +41,7 @@ export default async function UserProfilePage({
   if (!user) notFound();
 
   const collections = readCollections(user.publicMetadata as Record<string, unknown>);
+  const lineups = readLineups(user.publicMetadata as Record<string, unknown>);
 
   // Resolve player IDs to names. Build a map once over the full search index.
   const allPlayers = getAll();
@@ -62,25 +65,56 @@ export default async function UserProfilePage({
       <header className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold">{displayName}</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          {collections.length === 0
-            ? "No public collections yet."
-            : `${collections.length} ${collections.length === 1 ? "collection" : "collections"}`}
+          {pluralize(collections.length, "collection", "collections")}
+          {" · "}
+          {pluralize(lineups.length, "lineup", "lineups")}
         </p>
       </header>
 
-      {collections.length === 0 ? (
-        <div className="rounded-md border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-          This user hasn&apos;t shared any collections.
-        </div>
-      ) : (
-        <div className="flex flex-col gap-6">
-          {collections.map((c) => (
-            <PublicCollection key={c.id} collection={c} byId={byId} />
-          ))}
-        </div>
+      {lineups.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-lg font-semibold">Lineups</h2>
+          <ul className="divide-y divide-gray-200 overflow-hidden rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+            {lineups.map((l) => {
+              const filled = SLOTS.filter((s) => Boolean(l.slots[s])).length;
+              return (
+                <li key={l.id}>
+                  <Link
+                    href={`/lineup/${user.id}/${l.id}`}
+                    className="flex items-baseline justify-between gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-900"
+                  >
+                    <span className="font-medium">{l.name}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {filled}/{SLOTS.length} filled
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-semibold">Collections</h2>
+        {collections.length === 0 ? (
+          <div className="rounded-md border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            No public collections yet.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            {collections.map((c) => (
+              <PublicCollection key={c.id} collection={c} byId={byId} />
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
+}
+
+function pluralize(n: number, one: string, many: string): string {
+  return `${n} ${n === 1 ? one : many}`;
 }
 
 function PublicCollection({

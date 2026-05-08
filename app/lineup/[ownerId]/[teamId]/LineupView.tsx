@@ -71,7 +71,11 @@ export function LineupView({ ownerId, initialLineup, isOwner }: Props) {
               : "Any player can fill any slot."}
           </span>
           <div className="ml-auto">
-            <ShareButton ownerId={ownerId} teamId={lineup.id} />
+            <ShareButton
+              ownerId={ownerId}
+              teamId={lineup.id}
+              lineupName={lineup.name}
+            />
           </div>
         </div>
       )}

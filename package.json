@@ -10,7 +10,8 @@
     "build:index": "tsx scripts/build-search-index.ts",
     "build:historical": "tsx scripts/import-historical.ts",
     "build:awards": "tsx scripts/build-awards-counts.ts",
-    "build:batting": "tsx scripts/build-batting.ts"
+    "build:batting": "tsx scripts/build-batting.ts",
+    "build:pitching": "tsx scripts/build-pitching.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.3.2",

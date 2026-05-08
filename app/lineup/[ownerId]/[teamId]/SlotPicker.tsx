@@ -19,7 +19,15 @@ type Props = {
 
 const RESULT_LIMIT = 30;
 
-type StatKey = "warBat" | "warPit" | "opsPlus" | "eraPlus" | "homeRuns";
+type StatKey =
+  | "warBat"
+  | "warPit"
+  | "opsPlus"
+  | "eraPlus"
+  | "homeRuns"
+  | "strikeOuts"
+  | "wins"
+  | "saves";
 type AwardKey =
   | "mvp"
   | "cyYoung"
@@ -39,6 +47,9 @@ type Filters = {
   minEraPlus: string;
   minAvg: string;
   minHr: string;
+  minK: string;
+  minWins: string;
+  minSaves: string;
   minMvp: string;
   minCyYoung: string;
   minRoy: string;
@@ -57,6 +68,9 @@ const EMPTY_FILTERS: Filters = {
   minEraPlus: "",
   minAvg: "",
   minHr: "",
+  minK: "",
+  minWins: "",
+  minSaves: "",
   minMvp: "",
   minCyYoung: "",
   minRoy: "",
@@ -125,6 +139,9 @@ export function SlotPicker({
   const minEraPlus = parseNum(f.minEraPlus);
   const minAvg = parseNum(f.minAvg);
   const minHr = parseNum(f.minHr);
+  const minK = parseNum(f.minK);
+  const minWins = parseNum(f.minWins);
+  const minSaves = parseNum(f.minSaves);
   const awardMins: Partial<Record<AwardKey, number>> = {};
   for (const af of AWARD_FILTERS) {
     const n = parseNum(f[af.field] as string);
@@ -137,7 +154,10 @@ export function SlotPicker({
     minOpsPlus !== null ||
     minEraPlus !== null ||
     minAvg !== null ||
-    minHr !== null;
+    minHr !== null ||
+    minK !== null ||
+    minWins !== null ||
+    minSaves !== null;
   const anyAwardFilter = Object.keys(awardMins).length > 0;
   const anyFilter =
     Boolean(f.name.trim()) || f.hofOnly || anyStatFilter || anyAwardFilter;
@@ -156,6 +176,9 @@ export function SlotPicker({
       if (minEraPlus !== null && (e.eraPlus ?? -Infinity) < minEraPlus) return false;
       if (minAvg !== null && parseAvg(e.avg) < minAvg) return false;
       if (minHr !== null && (e.homeRuns ?? -Infinity) < minHr) return false;
+      if (minK !== null && (e.strikeOuts ?? -Infinity) < minK) return false;
+      if (minWins !== null && (e.wins ?? -Infinity) < minWins) return false;
+      if (minSaves !== null && (e.saves ?? -Infinity) < minSaves) return false;
       for (const [k, min] of Object.entries(awardMins)) {
         if ((e[k as AwardKey] ?? 0) < (min as number)) return false;
       }
@@ -271,6 +294,21 @@ export function SlotPicker({
           <div className="grid grid-cols-2 gap-2">
             {isPitcherSlot ? (
               <>
+                <NumberField
+                  label="Min K"
+                  value={f.minK}
+                  onChange={(v) => update({ minK: v })}
+                />
+                <NumberField
+                  label="Min Wins"
+                  value={f.minWins}
+                  onChange={(v) => update({ minWins: v })}
+                />
+                <NumberField
+                  label="Min Saves"
+                  value={f.minSaves}
+                  onChange={(v) => update({ minSaves: v })}
+                />
                 <NumberField
                   label="Min WAR (pit)"
                   value={f.minWarPit}
@@ -482,11 +520,16 @@ function StatPills({
 }) {
   const pills: Array<{ label: string; value: string }> = [];
   if (pitcher) {
-    if (entry.warPit !== undefined && entry.warPit >= 1) {
-      pills.push({ label: "WAR", value: entry.warPit.toFixed(1) });
-    }
-    if (entry.eraPlus !== undefined) {
-      pills.push({ label: "ERA+", value: String(entry.eraPlus) });
+    if (entry.era) pills.push({ label: "ERA", value: entry.era });
+    // Show wins for starters, saves for relievers (heuristic: more saves
+    // than starts → reliever).
+    const wins = entry.wins ?? 0;
+    const saves = entry.saves ?? 0;
+    const starts = entry.gamesStarted ?? 0;
+    if (saves > starts && saves > 0) {
+      pills.push({ label: "SV", value: String(saves) });
+    } else if (wins > 0) {
+      pills.push({ label: "W", value: String(wins) });
     }
   } else {
     if (entry.avg) pills.push({ label: "AVG", value: entry.avg });
@@ -538,6 +581,9 @@ function pickStatSortKey(f: Filters): StatKey | null {
   if (f.minOpsPlus) return "opsPlus";
   if (f.minEraPlus) return "eraPlus";
   if (f.minHr) return "homeRuns";
+  if (f.minK) return "strikeOuts";
+  if (f.minWins) return "wins";
+  if (f.minSaves) return "saves";
   return null;
 }
 
