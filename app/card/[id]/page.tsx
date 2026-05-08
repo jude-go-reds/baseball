@@ -8,6 +8,7 @@ import {
 } from "@/lib/cards/templates/registry";
 import { FlipCard } from "./FlipCard";
 import { FavoriteButton } from "./FavoriteButton";
+import { AddToCollection } from "./AddToCollection";
 
 export default async function CardPage({
   params,
@@ -58,6 +59,7 @@ export default async function CardPage({
 
       <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
         <FavoriteButton id={player.id} />
+        <AddToCollection playerId={player.id} />
         <a
           href={`/api/card/${player.id}?style=${style}&side=front`}
           download={`${player.id}-${style}-front.png`}

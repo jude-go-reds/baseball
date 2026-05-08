@@ -12,6 +12,7 @@ import {
   setRemoteFavoriteTeamsSync,
   setRemoteFavoritesSync,
 } from "@/lib/favorites";
+import { clearCollections, refetchCollections } from "@/lib/collections";
 
 const SYNC_DEBOUNCE_MS = 400;
 
@@ -78,6 +79,7 @@ export function FavoritesSyncProvider({ children }: { children: React.ReactNode 
       if (wasSignedIn.current) {
         clearFavorites();
         clearFavoriteTeams();
+        clearCollections();
       }
       wasSignedIn.current = false;
       return;
@@ -113,6 +115,10 @@ export function FavoritesSyncProvider({ children }: { children: React.ReactNode 
 
       setRemoteFavoritesSync(writePlayers);
       setRemoteFavoriteTeamsSync(writeTeams);
+
+      // Pull collections too — they share the same auth lifecycle.
+      void refetchCollections();
+
       wasSignedIn.current = true;
     })();
 

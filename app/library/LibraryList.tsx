@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
 import {
   getFavorites,
@@ -13,6 +14,12 @@ import {
   toggleFavorite,
   toggleFavoriteTeam,
 } from "@/lib/favorites";
+import {
+  getCollectionsServerSnapshot,
+  getCollectionsSnapshot,
+  subscribeCollections,
+} from "@/lib/collections";
+import { CollectionsSection } from "./CollectionsSection";
 
 type SearchEntry = {
   id: string;
@@ -25,6 +32,7 @@ type SearchEntry = {
 };
 
 export function LibraryList() {
+  const { isSignedIn } = useAuth();
   const favIds = useSyncExternalStore(
     subscribeFavorites,
     getFavorites,
@@ -35,16 +43,20 @@ export function LibraryList() {
     getFavoriteTeams,
     getFavoriteTeamsServerSnapshot,
   );
+  const collections = useSyncExternalStore(
+    subscribeCollections,
+    getCollectionsSnapshot,
+    getCollectionsServerSnapshot,
+  );
 
   const [index, setIndex] = useState<SearchEntry[] | null>(null);
   const [fetchFailed, setFetchFailed] = useState(false);
-  // Defer the first paint until localStorage has been read on the client,
-  // so SSR/first-render don't briefly show the empty-state to users who
-  // do have favorites.
   const mounted = useIsMounted();
 
+  const needsIndex = favIds.length > 0 || collections.some((c) => c.playerIds.length > 0);
+
   useEffect(() => {
-    if (favIds.length === 0) return;
+    if (!needsIndex) return;
     if (index !== null) return;
     let cancelled = false;
     fetch("/players.json")
@@ -58,24 +70,30 @@ export function LibraryList() {
     return () => {
       cancelled = true;
     };
-  }, [favIds.length, index]);
+  }, [needsIndex, index]);
+
+  const indexById = useMemo(() => {
+    if (!index) return null;
+    return new Map(index.map((e) => [e.id, e]));
+  }, [index]);
 
   const playerEntries = useMemo(() => {
-    if (!index) return null;
-    const set = new Set(favIds);
-    const byId = new Map(index.filter((e) => set.has(e.id)).map((e) => [e.id, e]));
+    if (!indexById) return null;
     return favIds
       .slice()
       .reverse()
-      .map((id) => byId.get(id))
+      .map((id) => indexById.get(id))
       .filter((e): e is SearchEntry => Boolean(e));
-  }, [index, favIds]);
+  }, [indexById, favIds]);
 
   if (!mounted) {
     return <Skeleton />;
   }
 
-  if (favIds.length === 0 && favTeams.length === 0) {
+  const empty =
+    favIds.length === 0 && favTeams.length === 0 && collections.length === 0;
+
+  if (empty) {
     return (
       <div className="flex flex-col gap-3 rounded-md border border-dashed border-gray-300 p-8 text-center dark:border-gray-700">
         <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -94,6 +112,8 @@ export function LibraryList() {
 
   return (
     <div className="flex flex-col gap-8">
+      {isSignedIn && <CollectionsSection index={indexById} />}
+
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">
           Teams{" "}
@@ -107,8 +127,8 @@ export function LibraryList() {
             <Link href="/browse" className="underline">
               Browse
             </Link>{" "}
-            and tap{" "}
-            <span className="font-medium">♡ Favorite team</span> on a team page.
+            and tap <span className="font-medium">♡ Favorite team</span> on a
+            team page.
           </p>
         ) : (
           <ul className="flex flex-wrap gap-2">
@@ -145,7 +165,9 @@ export function LibraryList() {
           </span>
         </h2>
         {favIds.length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">No favorite players yet.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            No favorite players yet.
+          </p>
         ) : fetchFailed ? (
           <p className="text-sm text-rose-600">Couldn&apos;t load player data.</p>
         ) : !playerEntries ? (
