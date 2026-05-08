@@ -32,7 +32,7 @@ export default async function EraPage({
       <header className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold">The {decade}s</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          {players.length} players who debuted in this decade.
+          {players.length} players who appeared in MLB during this decade.
         </p>
       </header>
 

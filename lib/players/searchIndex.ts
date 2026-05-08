@@ -46,25 +46,37 @@ export function getTeams(): Array<{ team: string; count: number }> {
   );
 }
 
-function debutDecade(years: string): number | null {
-  const match = years.match(/^(\d{4})/);
-  if (!match) return null;
-  const y = Number(match[1]);
-  return Math.floor(y / 10) * 10;
+/** Every decade the player appeared in MLB, inclusive of debut & final year. */
+function playedDecades(years: string): number[] {
+  const m = years.match(/^(\d{4})(?:\s*-\s*(\d{4}|present))?/);
+  if (!m) return [];
+  const start = Number(m[1]);
+  const endRaw = m[2];
+  const end = !endRaw
+    ? start
+    : endRaw === "present"
+      ? new Date().getUTCFullYear()
+      : Number(endRaw);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return [];
+  const startDecade = Math.floor(start / 10) * 10;
+  const endDecade = Math.floor(end / 10) * 10;
+  const out: number[] = [];
+  for (let d = startDecade; d <= endDecade; d += 10) out.push(d);
+  return out;
 }
 
 export function getByEra(decade: number): SearchEntry[] {
   return all
-    .filter((e) => debutDecade(e.years) === decade)
+    .filter((e) => playedDecades(e.years).includes(decade))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function getEras(): Array<{ decade: number; count: number }> {
   const counts = new Map<number, number>();
   for (const e of all) {
-    const d = debutDecade(e.years);
-    if (d === null) continue;
-    counts.set(d, (counts.get(d) ?? 0) + 1);
+    for (const d of playedDecades(e.years)) {
+      counts.set(d, (counts.get(d) ?? 0) + 1);
+    }
   }
   return Array.from(counts, ([decade, count]) => ({ decade, count })).sort(
     (a, b) => b.decade - a.decade,
