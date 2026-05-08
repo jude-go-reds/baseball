@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { SearchEntry } from "@/lib/players/searchIndex";
+import { playedDecades } from "@/lib/players/era";
 
 const PAGE_SIZE = 200;
 
@@ -12,16 +13,20 @@ type Props = {
   hideHofToggle?: boolean;
   /** When true, omit the team dropdown (e.g. on the team page itself). */
   hideTeamFilter?: boolean;
+  /** When true, omit the era dropdown (e.g. on the era page itself). */
+  hideEraFilter?: boolean;
 };
 
 export function FilteredPlayerList({
   entries,
   hideHofToggle = false,
   hideTeamFilter = false,
+  hideEraFilter = false,
 }: Props) {
   const [name, setName] = useState("");
   const [position, setPosition] = useState("");
   const [team, setTeam] = useState("");
+  const [era, setEra] = useState("");
   const [hofOnly, setHofOnly] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
@@ -37,16 +42,24 @@ export function FilteredPlayerList({
     return Array.from(set).sort();
   }, [entries]);
 
+  const eras = useMemo(() => {
+    const set = new Set<number>();
+    for (const e of entries) for (const d of playedDecades(e.years)) set.add(d);
+    return Array.from(set).sort((a, b) => b - a);
+  }, [entries]);
+
   const filtered = useMemo(() => {
     const q = name.trim().toLowerCase();
+    const eraNum = era ? Number(era) : null;
     return entries.filter((e) => {
       if (q && !e.name.toLowerCase().includes(q)) return false;
       if (position && e.position !== position) return false;
       if (team && !e.teams.includes(team)) return false;
+      if (eraNum !== null && !playedDecades(e.years).includes(eraNum)) return false;
       if (hofOnly && e.hofYear === undefined) return false;
       return true;
     });
-  }, [entries, name, position, team, hofOnly]);
+  }, [entries, name, position, team, era, hofOnly]);
 
   const visible = showAll ? filtered : filtered.slice(0, PAGE_SIZE);
   const hidden = filtered.length - visible.length;
@@ -92,6 +105,23 @@ export function FilteredPlayerList({
             {teams.map((t) => (
               <option key={t} value={t}>
                 {t}
+              </option>
+            ))}
+          </select>
+        )}
+        {!hideEraFilter && (
+          <select
+            value={era}
+            onChange={(e) => {
+              setEra(e.target.value);
+              setShowAll(false);
+            }}
+            className="rounded-md border border-gray-300 bg-white px-2 py-2 dark:border-gray-700 dark:bg-gray-900"
+          >
+            <option value="">All eras</option>
+            {eras.map((d) => (
+              <option key={d} value={d}>
+                {d}s
               </option>
             ))}
           </select>

@@ -36,7 +36,7 @@ export default async function EraPage({
         </p>
       </header>
 
-      <FilteredPlayerList entries={players} />
+      <FilteredPlayerList entries={players} hideEraFilter />
     </main>
   );
 }

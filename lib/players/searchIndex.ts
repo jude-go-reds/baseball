@@ -3,6 +3,7 @@
 // browse pages don't need an extra HTTP hop.
 
 import indexData from "@/public/players.json";
+import { playedDecades } from "./era";
 
 export type SearchEntry = {
   id: string;
@@ -44,25 +45,6 @@ export function getTeams(): Array<{ team: string; count: number }> {
   return Array.from(counts, ([team, count]) => ({ team, count })).sort(
     (a, b) => b.count - a.count,
   );
-}
-
-/** Every decade the player appeared in MLB, inclusive of debut & final year. */
-function playedDecades(years: string): number[] {
-  const m = years.match(/^(\d{4})(?:\s*-\s*(\d{4}|present))?/);
-  if (!m) return [];
-  const start = Number(m[1]);
-  const endRaw = m[2];
-  const end = !endRaw
-    ? start
-    : endRaw === "present"
-      ? new Date().getUTCFullYear()
-      : Number(endRaw);
-  if (!Number.isFinite(start) || !Number.isFinite(end)) return [];
-  const startDecade = Math.floor(start / 10) * 10;
-  const endDecade = Math.floor(end / 10) * 10;
-  const out: number[] = [];
-  for (let d = startDecade; d <= endDecade; d += 10) out.push(d);
-  return out;
 }
 
 export function getByEra(decade: number): SearchEntry[] {
