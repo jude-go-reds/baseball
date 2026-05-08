@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Show } from "@clerk/nextjs";
 import { MyLineups } from "./MyLineups";
-import { PlayerStatSearch } from "./PlayerStatSearch";
 import { SignedOutPrompt } from "./SignedOutPrompt";
 
 export default function LineupsPage() {
@@ -23,8 +22,6 @@ export default function LineupsPage() {
           shareable: anyone with the link can view yours.
         </p>
       </header>
-
-      <PlayerStatSearch />
 
       <Show when="signed-in">
         <MyLineups />
