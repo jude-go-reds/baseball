@@ -4,6 +4,7 @@ import {
   getHallOfFamers,
   getTeams,
 } from "@/lib/players/searchIndex";
+import { teamLogoUrl } from "@/lib/teams/logos";
 
 export default function BrowseHub() {
   const teams = getTeams().slice(0, 30);
@@ -51,16 +52,34 @@ export default function BrowseHub() {
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">By team</h2>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-          {teams.map(({ team, count }) => (
-            <Link
-              key={team}
-              href={`/browse/team/${team}`}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900"
-            >
-              <div className="font-medium">{team}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">{count}</div>
-            </Link>
-          ))}
+          {teams.map(({ team, count }) => {
+            const logo = teamLogoUrl(team);
+            return (
+              <Link
+                key={team}
+                href={`/browse/team/${team}`}
+                className="flex flex-col items-center gap-1 rounded-md border border-gray-300 px-3 py-3 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900"
+                title={team}
+              >
+                {logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logo}
+                    alt={team}
+                    className="h-10 w-10 object-contain"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-10 items-center font-medium">
+                    {team}
+                  </div>
+                )}
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {count}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
     </main>
