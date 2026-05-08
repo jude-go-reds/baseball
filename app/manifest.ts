@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Baseball Cards",
-    short_name: "Cards",
+    name: "Stat Cards",
+    short_name: "Stat Cards",
     description: "Generate shareable baseball cards for any MLB player.",
     start_url: "/",
     display: "standalone",
-    background_color: "#062018",
-    theme_color: "#0b3d2e",
+    background_color: "#000000",
+    theme_color: "#000000",
     orientation: "portrait",
     icons: [
       {

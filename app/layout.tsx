@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Baseball Cards",
+  title: "Stat Cards",
   description: "Generate shareable baseball cards for any MLB player.",
 };
 
