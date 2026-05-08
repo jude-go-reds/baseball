@@ -192,10 +192,7 @@ function SlotButton({
 
   const inner = (
     <div className="flex flex-col items-center gap-1">
-      <div
-        className="relative flex items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white text-[10px] font-bold text-gray-700 shadow-md"
-        style={{ width: 64, height: 64 }}
-      >
+      <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white text-[10px] font-bold text-gray-700 shadow-md sm:h-16 sm:w-16">
         {playerId && entry ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

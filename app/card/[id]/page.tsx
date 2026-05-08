@@ -25,7 +25,7 @@ export default async function CardPage({
   if (!player) notFound();
 
   return (
-    <main className="flex flex-1 flex-col items-center gap-6 p-8">
+    <main className="flex flex-1 flex-col items-center gap-6 p-4 sm:p-8">
       <div className="flex items-center gap-3 text-sm">
         <Link href="/" className="text-blue-600 hover:underline dark:text-blue-400">
           &larr; Home

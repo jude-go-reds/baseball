@@ -72,7 +72,7 @@ export function MyLineups() {
             onChange={(e) => setNewName(e.target.value)}
             placeholder='e.g. "All-Time Yankees"'
             maxLength={80}
-            className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+            className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-base dark:border-gray-700 dark:bg-gray-900"
           />
           <button
             type="submit"
