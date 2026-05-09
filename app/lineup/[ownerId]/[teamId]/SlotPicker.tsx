@@ -40,6 +40,7 @@ type AwardKey =
 
 type Filters = {
   name: string;
+  team: string;
   hofOnly: boolean;
   minWarBat: string;
   minWarPit: string;
@@ -61,6 +62,7 @@ type Filters = {
 
 const EMPTY_FILTERS: Filters = {
   name: "",
+  team: "",
   hofOnly: false,
   minWarBat: "",
   minWarPit: "",
@@ -132,6 +134,14 @@ export function SlotPicker({
     });
   }, [eligible]);
 
+  // Distinct teams across the eligible pool, sorted alphabetically.
+  const teams = useMemo(() => {
+    if (!eligible) return [] as string[];
+    const set = new Set<string>();
+    for (const e of eligible) for (const t of e.teams) if (t) set.add(t);
+    return Array.from(set).sort();
+  }, [eligible]);
+
   // Active stat thresholds.
   const minWarBat = parseNum(f.minWarBat);
   const minWarPit = parseNum(f.minWarPit);
@@ -160,7 +170,11 @@ export function SlotPicker({
     minSaves !== null;
   const anyAwardFilter = Object.keys(awardMins).length > 0;
   const anyFilter =
-    Boolean(f.name.trim()) || f.hofOnly || anyStatFilter || anyAwardFilter;
+    Boolean(f.name.trim()) ||
+    Boolean(f.team) ||
+    f.hofOnly ||
+    anyStatFilter ||
+    anyAwardFilter;
 
   const filtered = useMemo<PlayerIndexEntry[] | null>(() => {
     if (!eligible) return null;
@@ -169,6 +183,7 @@ export function SlotPicker({
         ? fuse.search(f.name.trim(), { limit: 500 }).map((r) => r.item)
         : eligible;
     return base.filter((e) => {
+      if (f.team && !e.teams.includes(f.team)) return false;
       if (f.hofOnly && e.hofYear === undefined) return false;
       if (minWarBat !== null && (e.warBat ?? -Infinity) < minWarBat) return false;
       if (minWarPit !== null && (e.warPit ?? -Infinity) < minWarPit) return false;
@@ -258,6 +273,19 @@ export function SlotPicker({
         />
 
         <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={f.team}
+            onChange={(e) => update({ team: e.target.value })}
+            aria-label="Filter by team"
+            className="rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-900"
+          >
+            <option value="">All teams</option>
+            {teams.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
           <label className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm dark:border-gray-700 dark:bg-gray-900">
             <input
               type="checkbox"
