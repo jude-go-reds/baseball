@@ -5,6 +5,8 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SignedOutButtons } from "./AuthHeader";
 import { FavoritesSyncProvider } from "./FavoritesSyncProvider";
+import { InstallButton } from "./InstallButton";
+import { IconUpdateHint } from "./IconUpdateHint";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,6 +44,7 @@ export default function RootLayout({
         <ClerkProvider>
           <FavoritesSyncProvider>
             <header className="flex h-16 items-center justify-end gap-3 p-3 text-sm">
+              <InstallButton />
               <Show when="signed-out">
                 <SignedOutButtons />
               </Show>
@@ -52,6 +55,7 @@ export default function RootLayout({
               </Show>
             </header>
             {children}
+            <IconUpdateHint />
           </FavoritesSyncProvider>
         </ClerkProvider>
         <Analytics />
