@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   type Collection,
   createCollection,
@@ -115,9 +115,10 @@ function CollectionCard({
   const [renaming, setRenaming] = useState(false);
   const [draftName, setDraftName] = useState(c.name);
 
-  useEffect(() => {
-    if (!renaming) setDraftName(c.name);
-  }, [c.name, renaming]);
+  function startRename() {
+    setDraftName(c.name);
+    setRenaming(true);
+  }
 
   const players = useMemo(() => {
     if (!index) return null;
@@ -199,7 +200,7 @@ function CollectionCard({
             <>
               <button
                 type="button"
-                onClick={() => setRenaming(true)}
+                onClick={startRename}
                 className="rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Rename

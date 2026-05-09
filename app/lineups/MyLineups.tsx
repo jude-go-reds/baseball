@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import {
   type Lineup,
@@ -129,9 +129,10 @@ function LineupRow({ lineup: l }: { lineup: Lineup }) {
   const [renaming, setRenaming] = useState(false);
   const [draftName, setDraftName] = useState(l.name);
 
-  useEffect(() => {
-    if (!renaming) setDraftName(l.name);
-  }, [l.name, renaming]);
+  function startRename() {
+    setDraftName(l.name);
+    setRenaming(true);
+  }
 
   const filled = SLOTS.filter((s) => Boolean(l.slots[s])).length;
 
@@ -205,7 +206,7 @@ function LineupRow({ lineup: l }: { lineup: Lineup }) {
           <>
             <button
               type="button"
-              onClick={() => setRenaming(true)}
+              onClick={startRename}
               className="rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               Rename
