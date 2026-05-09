@@ -36,7 +36,6 @@ const FIELD_SLOTS: Array<Exclude<Slot, "RP" | "DH">> = [
 ];
 
 const TITLE_HEIGHT = 70;
-const FIELD_TOP = TITLE_HEIGHT;
 const FIELD_HEIGHT = size.height - TITLE_HEIGHT;
 
 const PAPER = "#fafaf7";
@@ -353,7 +352,6 @@ function Avatar({
           background: PAPER,
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={mlbPhotoUrl(playerId)}
           alt=""
