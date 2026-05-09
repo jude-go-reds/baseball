@@ -7,9 +7,10 @@ import {
   subscribeFavorites,
   toggleFavorite,
 } from "@/lib/favorites";
+import type { Style } from "@/lib/cards/templates/registry";
 import { useIsMounted } from "@/lib/hooks/useIsMounted";
 
-export function FavoriteButton({ id }: { id: string }) {
+export function FavoriteButton({ id, style }: { id: string; style: Style }) {
   const favs = useSyncExternalStore(
     subscribeFavorites,
     getFavorites,
@@ -23,7 +24,7 @@ export function FavoriteButton({ id }: { id: string }) {
   return (
     <button
       type="button"
-      onClick={() => toggleFavorite(id)}
+      onClick={() => toggleFavorite(id, style)}
       aria-pressed={fav}
       style={mounted ? undefined : { visibility: "hidden" }}
       className={`rounded-md border px-4 py-2 text-sm transition ${

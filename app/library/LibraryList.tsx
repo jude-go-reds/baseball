@@ -7,9 +7,12 @@ import { usePlayerIndex } from "@/lib/hooks/usePlayerIndex";
 import {
   getFavorites,
   getFavoritesServerSnapshot,
+  getFavoriteStyles,
+  getFavoriteStylesServerSnapshot,
   getFavoriteTeams,
   getFavoriteTeamsServerSnapshot,
   subscribeFavorites,
+  subscribeFavoriteStyles,
   subscribeFavoriteTeams,
   toggleFavorite,
   toggleFavoriteTeam,
@@ -35,6 +38,11 @@ export function LibraryList() {
     subscribeFavoriteTeams,
     getFavoriteTeams,
     getFavoriteTeamsServerSnapshot,
+  );
+  const favStyles = useSyncExternalStore(
+    subscribeFavoriteStyles,
+    getFavoriteStyles,
+    getFavoriteStylesServerSnapshot,
   );
 
   const { byId: indexById, failed: fetchFailed } = usePlayerIndex(favIds.length > 0);
@@ -140,7 +148,11 @@ export function LibraryList() {
                 className="flex items-center justify-between gap-3 px-4 py-2.5"
               >
                 <Link
-                  href={`/card/${p.id}`}
+                  href={
+                    favStyles[p.id]
+                      ? `/card/${p.id}?style=${favStyles[p.id]}`
+                      : `/card/${p.id}`
+                  }
                   className="flex min-w-0 flex-1 items-baseline justify-between gap-3 hover:underline"
                 >
                   <span className="flex items-baseline gap-2">

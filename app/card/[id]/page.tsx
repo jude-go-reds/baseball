@@ -58,7 +58,7 @@ export default async function CardPage({
       </p>
 
       <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
-        <FavoriteButton id={player.id} />
+        <FavoriteButton id={player.id} style={style} />
         <AddToCollection playerId={player.id} />
         <a
           href={`/api/card/${player.id}?style=${style}&side=front`}

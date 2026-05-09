@@ -5,19 +5,28 @@ import { useEffect, useRef } from "react";
 import {
   clearFavoriteTeams,
   clearFavorites,
+  getFavoriteStyles,
   getFavoriteTeams,
   getFavorites,
+  setAllFavoriteStyles,
   setAllFavoriteTeams,
   setAllFavorites,
+  setRemoteFavoriteStylesSync,
   setRemoteFavoriteTeamsSync,
   setRemoteFavoritesSync,
 } from "@/lib/favorites";
+import type { Style } from "@/lib/cards/templates/registry";
 import { clearCollections, refetchCollections } from "@/lib/collections";
 import { clearLineups, refetchLineups } from "@/lib/lineups";
 
 const SYNC_DEBOUNCE_MS = 400;
 
-type RemoteFavorites = { players: string[]; teams: string[] };
+type PlayerStyles = Record<string, Style>;
+type RemoteFavorites = {
+  players: string[];
+  teams: string[];
+  playerStyles: PlayerStyles;
+};
 
 function debounced<T>(fn: (arg: T) => void, ms: number) {
   let timer: ReturnType<typeof setTimeout> | null = null;
@@ -34,11 +43,18 @@ function debounced<T>(fn: (arg: T) => void, ms: number) {
 
 async function pullRemote(): Promise<RemoteFavorites> {
   const res = await fetch("/api/favorites", { cache: "no-store" });
-  if (!res.ok) return { players: [], teams: [] };
-  const data = (await res.json()) as Partial<RemoteFavorites>;
+  if (!res.ok) return { players: [], teams: [], playerStyles: {} };
+  const data = (await res.json()) as Partial<RemoteFavorites> & {
+    playerStyles?: unknown;
+  };
+  const playerStyles: PlayerStyles =
+    data.playerStyles && typeof data.playerStyles === "object" && !Array.isArray(data.playerStyles)
+      ? (data.playerStyles as PlayerStyles)
+      : {};
   return {
     players: Array.isArray(data.players) ? data.players : [],
     teams: Array.isArray(data.teams) ? data.teams : [],
+    playerStyles,
   };
 }
 
@@ -48,6 +64,14 @@ async function pushRemote(payload: RemoteFavorites): Promise<void> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+}
+
+function sameStyles(a: PlayerStyles, b: PlayerStyles): boolean {
+  const ak = Object.keys(a);
+  const bk = Object.keys(b);
+  if (ak.length !== bk.length) return false;
+  for (const k of ak) if (a[k] !== b[k]) return false;
+  return true;
 }
 
 function uniq(...lists: string[][]): string[] {
@@ -77,6 +101,7 @@ export function FavoritesSyncProvider({ children }: { children: React.ReactNode 
     if (!isSignedIn) {
       setRemoteFavoritesSync(null);
       setRemoteFavoriteTeamsSync(null);
+      setRemoteFavoriteStylesSync(null);
       if (wasSignedIn.current) {
         clearFavorites();
         clearFavoriteTeams();
@@ -94,29 +119,64 @@ export function FavoritesSyncProvider({ children }: { children: React.ReactNode 
 
       const localPlayers = getFavorites();
       const localTeams = getFavoriteTeams();
+      const localStyles = getFavoriteStyles();
       const mergedPlayers = uniq(remote.players, localPlayers);
       const mergedTeams = uniq(remote.teams, localTeams);
+      // Local edits win on style conflicts — they reflect the user's most
+      // recent visit to a card page on this device.
+      const mergedStyles: PlayerStyles = {
+        ...remote.playerStyles,
+        ...localStyles,
+      };
+      // Drop entries for players that were dropped from the favorites set.
+      const playerSet = new Set(mergedPlayers);
+      for (const id of Object.keys(mergedStyles)) {
+        if (!playerSet.has(id)) delete mergedStyles[id];
+      }
 
       setAllFavorites(mergedPlayers);
       setAllFavoriteTeams(mergedTeams);
+      setAllFavoriteStyles(mergedStyles);
 
       // Push the merged set so the server has the same view.
+      const stylesChanged = !sameStyles(mergedStyles, remote.playerStyles);
       const initialMergeChangedRemote =
         mergedPlayers.length !== remote.players.length ||
-        mergedTeams.length !== remote.teams.length;
+        mergedTeams.length !== remote.teams.length ||
+        stylesChanged;
       if (initialMergeChangedRemote) {
-        void pushRemote({ players: mergedPlayers, teams: mergedTeams });
+        void pushRemote({
+          players: mergedPlayers,
+          teams: mergedTeams,
+          playerStyles: mergedStyles,
+        });
       }
 
       const writePlayers = debounced((ids: string[]) => {
-        void pushRemote({ players: ids, teams: getFavoriteTeams() });
+        void pushRemote({
+          players: ids,
+          teams: getFavoriteTeams(),
+          playerStyles: getFavoriteStyles(),
+        });
       }, SYNC_DEBOUNCE_MS);
       const writeTeams = debounced((ids: string[]) => {
-        void pushRemote({ players: getFavorites(), teams: ids });
+        void pushRemote({
+          players: getFavorites(),
+          teams: ids,
+          playerStyles: getFavoriteStyles(),
+        });
+      }, SYNC_DEBOUNCE_MS);
+      const writeStyles = debounced((map: PlayerStyles) => {
+        void pushRemote({
+          players: getFavorites(),
+          teams: getFavoriteTeams(),
+          playerStyles: map,
+        });
       }, SYNC_DEBOUNCE_MS);
 
       setRemoteFavoritesSync(writePlayers);
       setRemoteFavoriteTeamsSync(writeTeams);
+      setRemoteFavoriteStylesSync(writeStyles);
 
       // Pull collections + lineups — they share the same auth lifecycle.
       void refetchCollections();
