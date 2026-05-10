@@ -7,7 +7,7 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
-function detectIosSafari(): boolean {
+function detectIos(): boolean {
   if (typeof window === "undefined") return false;
   const ua = window.navigator.userAgent;
   // iPadOS reports as MacIntel, so check touchpoints too.
@@ -15,8 +15,8 @@ function detectIosSafari(): boolean {
     /iPad|iPhone|iPod/.test(ua) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   if (!isIOS) return false;
-  // In-app browsers on iOS use WebKit but can't actually add to home screen.
-  return !/CriOS|FxiOS|EdgiOS|OPiOS|YaBrowser|Instagram|FBAN|FBAV/.test(ua);
+  // In-app webviews on iOS can't Add to Home Screen — exclude them.
+  return !/Instagram|FBAN|FBAV|Line|Twitter|Snapchat/.test(ua);
 }
 
 function isStandalone(): boolean {
@@ -47,7 +47,7 @@ export function InstallButton() {
 
     if (isStandalone()) {
       setInstalled(true);
-    } else if (detectIosSafari()) {
+    } else if (detectIos()) {
       setIosFallback(true);
     }
 
@@ -129,8 +129,8 @@ function IosInstructions({ onClose }: { onClose: () => void }) {
             <Step n={1} />
             <span>
               Tap the <ShareGlyph />{" "}
-              <span className="font-medium">Share</span> button at the bottom
-              of Safari.
+              <span className="font-medium">Share</span> button in your
+              browser's toolbar.
             </span>
           </li>
           <li className="flex items-start gap-3">
@@ -143,14 +143,14 @@ function IosInstructions({ onClose }: { onClose: () => void }) {
           <li className="flex items-start gap-3">
             <Step n={3} />
             <span>
-              Tap <span className="font-medium">Add</span> in the top right.
+              Tap <span className="font-medium">Add</span> to confirm.
             </span>
           </li>
         </ol>
 
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          You'll get a Stat Cards icon on your home screen and the app will
-          open full-screen, no browser chrome.
+          For the best experience, do this from Safari — installs from
+          Chrome and Firefox open in their browser, not as a standalone app.
         </p>
 
         <button

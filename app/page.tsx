@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Show } from "@clerk/nextjs";
 import { PlayerSearch } from "./PlayerSearch";
 import { InstallButton } from "./InstallButton";
+import { MothersDayToast } from "./MothersDayToast";
 
 const NAV_BUTTON =
   "rounded-md border border-gray-300 px-5 py-2.5 text-base font-medium hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900";
@@ -9,6 +10,7 @@ const NAV_BUTTON =
 export default function Home() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-6 p-4 text-center sm:p-8">
+      <MothersDayToast />
       <h1 className="text-4xl font-bold sm:text-5xl">Stat Cards</h1>
       <p className="max-w-md text-base text-gray-600 dark:text-gray-300">
         Type a player name to generate a shareable card. Every MLB player from
