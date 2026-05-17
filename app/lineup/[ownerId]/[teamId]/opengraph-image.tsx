@@ -174,7 +174,7 @@ export default async function OgImage({
       ...size,
       headers: {
         "Cache-Control":
-          "public, s-maxage=600, stale-while-revalidate=86400",
+          "public, s-maxage=86400, stale-while-revalidate=2592000",
       },
     },
   );
