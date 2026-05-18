@@ -28,6 +28,9 @@ export async function GET(
     headers: {
       "Cache-Control":
         "public, s-maxage=604800, stale-while-revalidate=2592000",
+      // Netlify's CDN keys by path only by default — without this header,
+      // ?side=front and ?side=back collide on the same cache entry.
+      "Netlify-Vary": "query=side|style",
     },
   });
 }
