@@ -106,43 +106,66 @@ function FieldBackground() {
       className="absolute inset-0 h-full w-full"
       aria-hidden="true"
     >
-      {/* Outfield grass — base color */}
-      <rect width="1000" height="800" fill="#1f7a3a" />
+      <defs>
+        {/* Diamond mowing pattern — perpendicular stripes at ±45° create
+            the classic MLB outfield checkerboard (see Great American Ball Park). */}
+        <pattern
+          id="lineup-mow-diamond"
+          patternUnits="userSpaceOnUse"
+          width="110"
+          height="110"
+          patternTransform="rotate(45)"
+        >
+          <rect width="110" height="110" fill="#1f8a3a" />
+          <rect width="55" height="55" fill="#17712f" />
+          <rect x="55" y="55" width="55" height="55" fill="#17712f" />
+        </pattern>
+        {/* Finer mowing for the infield grass diamond. */}
+        <pattern
+          id="lineup-mow-infield"
+          patternUnits="userSpaceOnUse"
+          width="56"
+          height="56"
+          patternTransform="rotate(45)"
+        >
+          <rect width="56" height="56" fill="#1f8a3a" />
+          <rect width="28" height="28" fill="#1a7c33" />
+          <rect x="28" y="28" width="28" height="28" fill="#1a7c33" />
+        </pattern>
+      </defs>
 
-      {/* Subtle mowing stripes */}
-      <g opacity="0.08">
-        <rect y="0" width="1000" height="80" fill="#000" />
-        <rect y="160" width="1000" height="80" fill="#000" />
-        <rect y="320" width="1000" height="80" fill="#000" />
-        <rect y="480" width="1000" height="80" fill="#000" />
-        <rect y="640" width="1000" height="80" fill="#000" />
-      </g>
+      {/* Outfield grass with diamond mowing */}
+      <rect width="1000" height="800" fill="url(#lineup-mow-diamond)" />
 
-      {/* Foul-territory shading (slightly muted) */}
-      <path d="M 500 700 L 76 276 L 0 276 L 0 800 L 500 800 Z" fill="#0f4a26" opacity="0.55" />
-      <path d="M 500 700 L 924 276 L 1000 276 L 1000 800 L 500 800 Z" fill="#0f4a26" opacity="0.55" />
+      {/* Foul-territory grass (slightly muted) */}
+      <path d="M 500 700 L 76 276 L 0 276 L 0 800 L 500 800 Z" fill="#0e4824" opacity="0.45" />
+      <path d="M 500 700 L 924 276 L 1000 276 L 1000 800 L 500 800 Z" fill="#0e4824" opacity="0.45" />
 
-      {/* Warning track — brown band along the back wall */}
+      {/* Warning track — reddish-brown band along the back wall */}
       <path
         d="M 30 320 Q 500 -150 970 320 L 970 270 Q 500 -210 30 270 Z"
-        fill="#8a5a2e"
+        fill="#a06a3a"
       />
-      {/* Outfield wall (yellow-cap line) */}
+      {/* Outfield wall — dark green with yellow cap */}
       <path
-        d="M 30 270 Q 500 -210 970 270"
+        d="M 30 270 Q 500 -210 970 270 L 970 258 Q 500 -222 30 258 Z"
+        fill="#0a3a1a"
+      />
+      <path
+        d="M 30 258 Q 500 -222 970 258"
         fill="none"
         stroke="#fbbf24"
-        strokeWidth="4"
+        strokeWidth="3"
       />
 
-      {/* Skinned infield — dirt fan from home to the infield arc */}
+      {/* Skinned infield — reddish-brown dirt fan from home to infield arc */}
       <path
         d="M 500 700 L 244 444 A 362 362 0 0 1 756 444 L 500 700 Z"
-        fill="#a16225"
+        fill="#b27039"
       />
 
-      {/* Infield grass diamond */}
-      <polygon points="500,660 640,520 500,380 360,520" fill="#1f7a3a" />
+      {/* Infield grass diamond with subtle mowing */}
+      <polygon points="500,660 640,520 500,380 360,520" fill="url(#lineup-mow-infield)" />
 
       {/* Foul lines */}
       <line x1="500" y1="700" x2="76" y2="276" stroke="#fbfbf6" strokeWidth="3" />
@@ -155,6 +178,16 @@ function FieldBackground() {
         <rect x="-10" y="-10" width="20" height="20" transform="translate(330 530) rotate(45)" />
       </g>
 
+      {/* Pitcher's mound + rubber */}
+      <circle cx="500" cy="540" r="38" fill="#b27039" />
+      <rect x="488" y="538" width="24" height="5" fill="#fbfbf6" />
+
+      {/* Batter's boxes flanking home plate */}
+      <g fill="none" stroke="#fbfbf6" strokeWidth="1.5" opacity="0.85">
+        <rect x="466" y="682" width="14" height="32" />
+        <rect x="520" y="682" width="14" height="32" />
+      </g>
+
       {/* Home plate pentagon */}
       <polygon
         points="486,690 514,690 514,705 500,720 486,705"
@@ -162,10 +195,6 @@ function FieldBackground() {
         stroke="#7a4a25"
         strokeWidth="1.5"
       />
-
-      {/* Pitcher's mound + rubber */}
-      <circle cx="500" cy="540" r="38" fill="#a16225" />
-      <rect x="488" y="538" width="24" height="5" fill="#fbfbf6" />
     </svg>
   );
 }
