@@ -134,12 +134,15 @@ function FieldBackground() {
         </pattern>
       </defs>
 
-      {/* Outfield grass with diamond mowing */}
-      <rect width="1000" height="800" fill="url(#lineup-mow-diamond)" />
+      {/* Base: flat muted green for foul territory and beyond-the-wall */}
+      <rect width="1000" height="800" fill="#19612c" />
 
-      {/* Foul-territory grass (slightly muted) */}
-      <path d="M 500 700 L 76 276 L 0 276 L 0 800 L 500 800 Z" fill="#0e4824" opacity="0.45" />
-      <path d="M 500 700 L 924 276 L 1000 276 L 1000 800 L 500 800 Z" fill="#0e4824" opacity="0.45" />
+      {/* Fair territory — bounded by the foul lines and the wall arc.
+          Diamond mowing pattern only appears inside this shape. */}
+      <path
+        d="M 500 700 L 76 276 Q 500 -106 924 276 Z"
+        fill="url(#lineup-mow-diamond)"
+      />
 
       {/* Warning track — reddish-brown band along the back wall */}
       <path
