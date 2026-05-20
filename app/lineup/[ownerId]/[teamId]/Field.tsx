@@ -14,9 +14,9 @@ const FIELD_POS: Record<Exclude<Slot, "RP" | "DH">, { left: number; top: number 
   RF: { left: 82, top: 22 },
   SS: { left: 38, top: 46 },
   "2B": { left: 62, top: 42 },
-  "3B": { left: 22, top: 58 },
+  "3B": { left: 30, top: 60 },
   P: { left: 50, top: 60 },
-  "1B": { left: 78, top: 64 },
+  "1B": { left: 70, top: 60 },
   C: { left: 50, top: 95 },
 };
 
@@ -224,7 +224,7 @@ function SlotButton({
 
   const inner = (
     <div className="flex flex-col items-center gap-1">
-      <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white text-[10px] font-bold text-gray-700 shadow-md sm:h-16 sm:w-16">
+      <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white text-[10px] font-bold text-gray-700 shadow-md sm:h-14 sm:w-14">
         {playerId && entry ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
