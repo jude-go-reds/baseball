@@ -17,7 +17,7 @@ const FIELD_POS: Record<Exclude<Slot, "RP" | "DH">, { left: number; top: number 
   "3B": { left: 22, top: 58 },
   P: { left: 50, top: 60 },
   "1B": { left: 78, top: 64 },
-  C: { left: 50, top: 90 },
+  C: { left: 50, top: 95 },
 };
 
 const FIELD_SLOTS: Array<Exclude<Slot, "RP" | "DH">> = [
