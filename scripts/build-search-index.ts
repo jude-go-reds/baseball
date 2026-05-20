@@ -102,6 +102,43 @@ function teamLabel(p: ApiPlayer, teams: Map<number, string>): string {
   return name;
 }
 
+// Career fielding splits for every MLB player who ever recorded a
+// fielding appearance. Returns a per-player set of position
+// abbreviations (P, C, 1B, ..., DH). The per-season roster endpoint
+// only echoes the same `primaryPosition` for every season, so it
+// can't tell us that Pete Rose played 2B/OF/3B/1B at various points —
+// this endpoint can.
+async function fetchFieldingPositions(): Promise<Map<number, Set<string>>> {
+  const PAGE = 1000;
+  const out = new Map<number, Set<string>>();
+  for (let offset = 0; ; offset += PAGE) {
+    type Split = {
+      player?: { id?: number };
+      position?: { abbreviation?: string };
+    };
+    const json = await fetchJson<{
+      stats?: Array<{ splits?: Split[] }>;
+    }>(
+      `/stats?stats=career&group=fielding&sportId=1&playerPool=All&limit=${PAGE}&offset=${offset}`,
+    );
+    const splits = json.stats?.[0]?.splits ?? [];
+    if (splits.length === 0) break;
+    for (const s of splits) {
+      const pid = s.player?.id;
+      const pos = s.position?.abbreviation;
+      if (!pid || !pos) continue;
+      let set = out.get(pid);
+      if (!set) {
+        set = new Set();
+        out.set(pid, set);
+      }
+      set.add(pos);
+    }
+    if (splits.length < PAGE) break;
+  }
+  return out;
+}
+
 async function fetchSeason(season: number): Promise<ApiPlayer[]> {
   try {
     const json = await fetchJson<{ people?: ApiPlayer[] }>(
@@ -142,6 +179,10 @@ async function main() {
   console.log("Fetching Hall of Fame recipients...");
   const hof = await buildHofMap();
   console.log(`  ${hof.size} HoF inductees`);
+
+  console.log("Fetching career fielding positions for every player...");
+  const fieldingPositions = await fetchFieldingPositions();
+  console.log(`  positions across ${fieldingPositions.size} players`);
 
   const teams = await buildTeamMap();
 
@@ -201,11 +242,17 @@ async function main() {
     );
   }
 
-  const entries: SearchEntry[] = Array.from(byId.values()).map(({ player: p, teamIds, positions }) => {
+  const entries: SearchEntry[] = Array.from(byId.values()).map(({ player: p, teamIds, positions: rosterPositions }) => {
     const teamList = teamIds
       .map((id) => teams.get(id) ?? "")
       .filter((t) => t.length > 0);
     const primary = teamList[teamList.length - 1] || teamLabel(p, teams);
+    // Combine: career-fielding splits (real history of where the
+    // player took the field, including DH) + the roster primary
+    // (covers players who never recorded a fielding appearance, e.g.
+    // recent debuts).
+    const positions = new Set<string>(fieldingPositions.get(p.id) ?? []);
+    for (const pos of rosterPositions) positions.add(pos);
     const entry: SearchEntry = {
       id: String(p.id),
       name: p.fullName,
