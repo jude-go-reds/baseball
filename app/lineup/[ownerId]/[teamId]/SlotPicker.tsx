@@ -119,7 +119,9 @@ export function SlotPicker({
     if (!byId) return null;
     const all = Array.from(byId.values());
     if (!positionLock) return all;
-    return all.filter((e) => slotAccepts(slot, e.position));
+    return all.filter((e) =>
+      slotAccepts(slot, e.positions?.length ? e.positions : [e.position]),
+    );
   }, [byId, positionLock, slot]);
 
   const fuse = useMemo(() => {

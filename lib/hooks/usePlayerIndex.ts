@@ -7,7 +7,11 @@ export type PlayerIndexEntry = {
   name: string;
   team: string;
   teams: string[];
+  /** Player's most recent primary position. */
   position: string;
+  /** Every position the player held at any point in their career
+      (rebuilt index only — older indexes may omit this). */
+  positions?: string[];
   years: string;
   hofYear?: number;
   warBat?: number;

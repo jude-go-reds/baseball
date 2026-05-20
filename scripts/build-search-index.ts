@@ -19,7 +19,11 @@ export type SearchEntry = {
   team: string;
   /** Every team the player played for, in chronological order. */
   teams: string[];
+  /** Most recent primary position. */
   position: string;
+  /** Every primary position the player held across their seasons —
+      lets the lineup picker accept e.g. Pujols at both 1B and DH. */
+  positions: string[];
   years: string;
   /** Hall of Fame induction year, present iff the player is in the HoF. */
   hofYear?: number;
@@ -159,12 +163,15 @@ async function main() {
   // lastPlayedDate as the canonical metadata, but accumulate every team
   // the player appeared for so the team filter can match prior teams
   // (e.g. Greg Maddux on the Cubs years before his Braves run).
-  const byId = new Map<number, { player: ApiPlayer; teamIds: number[] }>();
+  const byId = new Map<
+    number,
+    { player: ApiPlayer; teamIds: number[]; positions: Set<string> }
+  >();
   for (const list of all) {
     for (const p of list) {
       let agg = byId.get(p.id);
       if (!agg) {
-        agg = { player: p, teamIds: [] };
+        agg = { player: p, teamIds: [], positions: new Set() };
         byId.set(p.id, agg);
       } else {
         const a = p.lastPlayedDate ?? "";
@@ -173,6 +180,8 @@ async function main() {
       }
       const tid = p.currentTeam?.id;
       if (tid && !agg.teamIds.includes(tid)) agg.teamIds.push(tid);
+      const pos = p.primaryPosition?.abbreviation;
+      if (pos) agg.positions.add(pos);
     }
   }
 
@@ -192,7 +201,7 @@ async function main() {
     );
   }
 
-  const entries: SearchEntry[] = Array.from(byId.values()).map(({ player: p, teamIds }) => {
+  const entries: SearchEntry[] = Array.from(byId.values()).map(({ player: p, teamIds, positions }) => {
     const teamList = teamIds
       .map((id) => teams.get(id) ?? "")
       .filter((t) => t.length > 0);
@@ -203,6 +212,7 @@ async function main() {
       team: primary,
       teams: teamList,
       position: p.primaryPosition?.abbreviation ?? "",
+      positions: Array.from(positions).sort(),
       years: yearsLabel(p),
     };
     const hofYear = hof.get(p.id);

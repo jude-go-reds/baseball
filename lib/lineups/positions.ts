@@ -41,7 +41,20 @@ const PITCHER_SLOTS: ReadonlySet<Slot> = new Set(["P", "RP"]);
 const OUTFIELD_SLOTS: ReadonlySet<Slot> = new Set(["LF", "CF", "RF"]);
 const INFIELD_SLOTS: ReadonlySet<Slot> = new Set(["1B", "2B", "3B", "SS"]);
 
-export function slotAccepts(slot: Slot, position: string): boolean {
+// True if any of the positions a player has ever held qualifies them
+// for `slot`. Accepts a single position code or a list — the list form
+// is preferred (drawn from the player's full career), so e.g. Pujols
+// (primary 1B, also DH) can be slotted into either, and Ohtani (P, DH)
+// can take either as well.
+export function slotAccepts(
+  slot: Slot,
+  positions: string | readonly string[],
+): boolean {
+  const list = typeof positions === "string" ? [positions] : positions;
+  return list.some((p) => slotAcceptsOne(slot, p));
+}
+
+function slotAcceptsOne(slot: Slot, position: string): boolean {
   const p = (position || "").toUpperCase();
   if (!p || p === "X") return false;
   // Two-way players (Ohtani-likes) are eligible everywhere.
