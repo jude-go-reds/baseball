@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Show } from "@clerk/nextjs";
 import { PlayerSearch } from "./PlayerSearch";
@@ -37,6 +38,19 @@ export default function Home() {
       </div>
 
       <InstallButton />
+
+      <div className="mt-4 flex flex-col items-center gap-2">
+        <Image
+          src="/qr.png"
+          alt="QR code linking to statcards.huff.fyi"
+          width={160}
+          height={160}
+          className="rounded-md border border-gray-200 bg-white p-2 dark:border-gray-700"
+        />
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Show this to youre friends so they can have the app too
+        </p>
+      </div>
     </main>
   );
 }
