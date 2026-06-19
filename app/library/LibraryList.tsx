@@ -84,7 +84,7 @@ export function LibraryList() {
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">
-          Teams{" "}
+          My Teams{" "}
           <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
             ({favTeams.length})
           </span>
