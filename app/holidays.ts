@@ -153,6 +153,12 @@ export const HOLIDAYS: Holiday[] = [
     date: { kind: "fixed", month: 7, day: 4 },
   },
   {
+    id: "melon-day",
+    title: "Happy Melon Day!",
+    message: "eat melon :|",
+    date: { kind: "nthWeekday", month: 8, weekday: SUN, n: 2 },
+  },
+  {
     id: "veterans-day",
     title: "Veterans Day",
     message: "Make a card honoring a veteran in your lineup.",
